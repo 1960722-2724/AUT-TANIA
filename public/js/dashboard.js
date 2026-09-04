@@ -141,48 +141,9 @@
         window.location.href = '../auth/login.html';
     }
 
-    function abrirSidebar() {
-        document.body.classList.add('sidebar-open');
-    }
-
-    function cerrarSidebar() {
-        document.body.classList.remove('sidebar-open');
-    }
-
-    function configurarSidebar() {
-        var sidebar = getEl('sidebar');
-        var toggle = getEl('btn-toggle-sidebar');
-        var closeBtn = getEl('btn-sidebar-close');
-        var backdrop = getEl('sidebar-backdrop');
-
-        toggle.addEventListener('click', function () {
-            if (document.body.classList.contains('sidebar-open')) {
-                cerrarSidebar();
-            } else {
-                abrirSidebar();
-            }
-        });
-
-        closeBtn.addEventListener('click', cerrarSidebar);
-        backdrop.addEventListener('click', cerrarSidebar);
-
-        sidebar.addEventListener('click', function (evt) {
-            if (evt.target.closest('a') && document.body.classList.contains('sidebar-open')) {
-                cerrarSidebar();
-            }
-        });
-
-        document.addEventListener('keydown', function (evt) {
-            if (evt.key === 'Escape' && document.body.classList.contains('sidebar-open')) {
-                cerrarSidebar();
-            }
-        });
-    }
-
     getEl('logout-btn').addEventListener('click', cerrarSesion);
 
     mostrarUsuario();
     mostrarFecha();
     configurarDropzone();
-    configurarSidebar();
 })();

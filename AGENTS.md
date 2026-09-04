@@ -852,3 +852,66 @@ Las prioridades del proyecto son:
 El objetivo inicial no es construir un sistema robusto.
 
 El objetivo inicial es construir **una interfaz visual completa, coherente y funcional página por página**, preparada para conectar posteriormente el backend real.
+
+---
+
+# 27. Layout de aplicación y menú hamburguesa (estilo reutilizable)
+
+Todas las páginas internas (Dashboard, Subir PDF, Procesando, Resultado, Historial, Administración) deben reutilizar el mismo layout de aplicación y el mismo menú lateral.
+
+## 27.1 Estructura HTML
+
+```text
+body.app-body
+├── aside.sidebar#sidebar               → menú lateral (columna fija en escritorio, drawer en móvil)
+│   ├── div.sidebar-brand
+│   │   ├── span.brand-kicker           → texto "Menú" (solo visible en móvil)
+│   │   ├── img.sidebar-logo            → logo (oculto en móvil)
+│   │   └── button#btn-sidebar-close    → botón X (solo visible en móvil)
+│   ├── nav.sidebar-nav
+│   │   ├── p.nav-section               → etiqueta de sección
+│   │   └── a.nav-link                  → enlace; usar class "active" en la página actual
+│   └── div.sidebar-footer
+│       ├── div.sidebar-user            → avatar + nombre + rol
+│       └── button#logout-btn.btn-logout
+├── div.sidebar-backdrop#sidebar-backdrop   → fondo oscurecido con blur (móvil)
+└── div.app-main
+    ├── header.topbar
+    │   ├── button#btn-toggle-sidebar.btn-toggle-sidebar   → hamburguesa (solo móvil)
+    │   └── div                         → título y subtítulo de la página
+    └── main.content
+```
+
+## 27.2 Archivos requeridos
+
+Cada ventana interna enlaza, en este orden:
+
+```text
+css/variables.css
+css/base.css
+css/components.css
+css/layout.css   → todo el estilo del layout, sidebar, topbar y backdrop vive aquí
+```
+
+Y al final del body:
+
+```text
+js/app.js   → inicializa el menú automáticamente (App.iniciarLayout)
+js/<js de la página>.js
+```
+
+No se requiere CSS adicional por página para el menú.
+
+## 27.3 Comportamiento JS (centralizado en app.js)
+
+* Abrir/cerrar: clic en `#btn-toggle-sidebar` alterna la clase `sidebar-open` en `body`.
+* Cerrar: botón X (`#btn-sidebar-close`), clic en el backdrop (`#sidebar-backdrop`), clic en cualquier enlace del menú o tecla `Escape`.
+* La clase `body.sidebar-open` controla la visibilidad del drawer y del backdrop en móvil.
+* `App.iniciarLayout()` se ejecuta solo si la página contiene `#sidebar`.
+
+## 27.4 Diseño móvil (≤ 900px)
+
+* Sidebar = drawer glass: `width: min(310px, 82vw)`, esquinas redondeadas a la derecha, gradiente azul con destello radial, sombra profunda (relieve).
+* Backdrop con desenfoque: `backdrop-filter: blur(3px)`.
+* En móvil el logo se oculta, se muestra "Menú" como etiqueta y el botón X circular de cristal.
+* En escritorio (> 900px) la sidebar es una columna fija; "Menú" y la X quedan ocultos.
