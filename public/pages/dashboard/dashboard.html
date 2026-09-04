@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | AUTN TANIA</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../../css/variables.css">
+    <link rel="stylesheet" href="../../css/base.css">
+    <link rel="stylesheet" href="../../css/components.css">
+    <link rel="stylesheet" href="../../css/layout.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
+</head>
+<body class="app-body">
+    <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+        <div class="sidebar-brand">
+            <span class="brand-kicker">Menú</span>
+            <img src="../../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
+            <button type="button" class="btn-sidebar-close" id="btn-sidebar-close" aria-label="Cerrar menú">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+            <img src="../../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
+        </div>
+
+        <nav class="sidebar-nav">
+            <p class="nav-section">Principal</p>
+            <a href="../dashboard/dashboard.html" class="nav-link active">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                Dashboard
+            </a>
+            <a href="../historial/historial.html" class="nav-link">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                Historial
+            </a>
+
+            <p class="nav-section">Administración</p>
+            <a href="../administracion/usuarios.html" class="nav-link">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                Usuarios
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <span class="avatar" id="user-avatar" aria-hidden="true"></span>
+                <div>
+                    <p class="user-name" id="user-name">Cargando...</p>
+                    <p class="user-rol" id="user-rol"></p>
+                </div>
+            </div>
+            <button type="button" id="logout-btn" class="btn-logout">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Cerrar sesión
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="app-main">
+        <header class="topbar">
+            <button type="button" class="btn-toggle-sidebar" id="btn-toggle-sidebar" aria-label="Abrir menú">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div>
+                <h1 class="page-title" id="greeting">Buen día</h1>
+                <p class="page-subtitle" id="fecha-hoy"></p>
+            </div>
+        </header>
+
+        <main class="content">
+            <section class="dropzone" id="dropzone" tabindex="0" aria-label="Subir archivo PDF">
+                <input type="file" id="file-input" accept="application/pdf,.pdf" hidden>
+
+                <div class="dz-empty" id="dz-empty">
+                    <svg class="dz-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <p class="dz-title">Arrastra tu PDF aquí</p>
+                    <p class="dz-text">o haz clic para seleccionar el archivo</p>
+                </div>
+
+                <div class="dz-file" id="dz-file" hidden>
+                    <svg class="dz-icon dz-icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <div class="dz-meta">
+                        <p class="dz-filename" id="dz-filename"></p>
+                        <p class="dz-size" id="dz-size"></p>
+                    </div>
+                </div>
+            </section>
+
+            <p class="dz-error" id="dz-error" role="alert" hidden></p>
+        </main>
+    </div>
+
+    <script src="../../js/app.js"></script>
+    <script src="../../js/dashboard.js"></script>
+</body>
+</html>

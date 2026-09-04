@@ -93,8 +93,11 @@
         login(correo, password).then(function () {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Iniciar sesión';
-            mostrarAlert('success', 'Sesión iniciada correctamente. El Dashboard estará disponible en la siguiente fase.');
+            mostrarAlert('success', 'Sesión iniciada correctamente.');
             form.reset();
+            window.setTimeout(function () {
+                window.location.href = '../dashboard/dashboard.html';
+            }, 600);
         });
     }
 
