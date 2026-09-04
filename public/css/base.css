@@ -1,0 +1,39 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: var(--font-size-base);
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--gris-texto);
+    background-color: var(--gris-fondo);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+    max-width: 100%;
+    display: block;
+}
+
+a {
+    color: var(--azul-principal);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--azul-hover);
+}
+
+button,
+input {
+    font-family: inherit;
+    font-size: inherit;
+}
