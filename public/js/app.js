@@ -2,6 +2,7 @@
     'use strict';
 
     var SESSION_KEY = 'autn_sesion';
+    var PROCESO_KEY = 'autn_proceso_actual';
 
     var mockData = {
         usuarios: [],
@@ -20,6 +21,19 @@
 
     function cerrarSesion() {
         localStorage.removeItem(SESSION_KEY);
+    }
+
+    function guardarProceso(proceso) {
+        sessionStorage.setItem(PROCESO_KEY, JSON.stringify(proceso));
+    }
+
+    function obtenerProceso() {
+        var raw = sessionStorage.getItem(PROCESO_KEY);
+        return raw ? JSON.parse(raw) : null;
+    }
+
+    function limpiarProceso() {
+        sessionStorage.removeItem(PROCESO_KEY);
     }
 
     function abrirSidebar() {
@@ -78,6 +92,9 @@
         obtenerSesion: obtenerSesion,
         crearSesion: crearSesion,
         cerrarSesion: cerrarSesion,
+        guardarProceso: guardarProceso,
+        obtenerProceso: obtenerProceso,
+        limpiarProceso: limpiarProceso,
         iniciarLayout: iniciarLayout
     };
 

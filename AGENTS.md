@@ -44,12 +44,18 @@ La aplicación tendrá dos tipos de usuario:
 * Google Fonts — Barlow
 * SVG para iconos
 
+## Backend — procesamiento de PDF (implementado)
+
+* PHP 8.1+ (en desarrollo local: PHP 8.2)
+* PHP puro
+* Poppler (pdftotext, pdftoppm, pdfimages, pdfinfo)
+* Tesseract OCR + idioma español (`spa`) — solo para PDFs escaneados
+
 ## Backend — etapa posterior
 
-* PHP 8.1+
 * PHP Sessions
-* PHP puro
 * PDO
+* PHP puro
 
 ## Base de datos — etapa posterior
 
@@ -58,9 +64,8 @@ La aplicación tendrá dos tipos de usuario:
 
 ## Procesamiento — etapa posterior
 
-* Procesamiento de PDF
-* Imagick / ImageMagick
-* Tesseract OCR únicamente si es necesario
+* Excel: SimpleXLSXGen
+* Imagick / ImageMagick si fuese necesario (no se usa actualmente)
 
 ## Excel — etapa posterior
 
@@ -92,10 +97,13 @@ FASE 2 → Registro
 FASE 3 → Dashboard
 FASE 4 → Subir PDF
 FASE 5 → Procesando
-FASE 6 → Resultado
-FASE 7 → Historial
-FASE 8 → Administración
+FASE 6 → Hallazgo (ficha del hallazgo: primera pantalla tras el procesamiento)
+FASE 7 → Resultado
+FASE 8 → Historial
+FASE 9 → Administración
 ```
+
+> **Estado actual:** las fases 1 a 6 están implementadas (Login y Registro con autenticación simulada; Dashboard, Subir PDF, Procesando y Hallazgo con el endpoint real `/api/pdf/subir.php`).
 
 Después de terminar una fase:
 
@@ -127,11 +135,17 @@ No crear componentes, funciones o archivos destinados a fases futuras salvo que 
 
 ---
 
-# 5. Primera etapa: prototipo visual
+# 5. Primera etapa: prototipo visual + procesamiento de PDF
 
-Inicialmente el proyecto será únicamente frontend.
+El proyecto empezó como prototipo visual (frontend). Parte de ese prototipo sigue en pie: autenticación, sesiones, base de datos y generación de Excel son todavía simuladas o futuras.
 
-Utilizar:
+**Ya implementados** (reales, no simulados):
+
+* Procesamiento real de PDF (ver sección 17).
+* OCR de documentos escaneados (Tesseract, idioma `spa`).
+* Endpoint `/api/pdf/subir.php` que recibe un PDF y devuelve los datos extraídos.
+
+Utilizar en el frontend:
 
 ```text
 HTML5
@@ -139,20 +153,17 @@ CSS3
 JavaScript Vanilla
 ```
 
-No implementar todavía:
+**No implementar todavía**:
 
-* PHP
 * MySQL
 * MariaDB
-* API real
+* API de autenticación real
 * Sesiones reales
-* OCR
-* Procesamiento real de PDF
+* Persistencia en base de datos
 * Generación real de Excel
-* Servidor
-* Autenticación real
+* Historial / Administración reales
 
-Cuando sea necesario mostrar información dinámica, utilizar datos simulados.
+Cuando sea necesario mostrar información dinámica de lo que aún no es real, utilizar datos simulados.
 
 ---
 
@@ -174,15 +185,28 @@ La raíz pública del proyecto será `public/`.
 │   │   │   └── dashboard.html
 │   │   │
 │   │   ├── procesamiento/
-│   │   │   ├── subir-pdf.html
-│   │   │   ├── procesando.html
-│   │   │   └── resultado.html
+│   │   │   ├── subir-pdf/
+│   │   │   ├── procesando/
+│   │   │   ├── hallazgo/         → ficha del hallazgo (primer pantalla tras el procesamiento)
+│   │   │   │   └── hallazgo.html
+│   │   │   ├── paso1/            → detalle crudo de los datos extraídos del PDF
+│   │   │   │   └── paso1.html
+│   │   │   ├── paso2/            → formulario de validación del técnico
+│   │   │   │   └── paso2.html
+│   │   │   └── resultado/
 │   │   │
 │   │   ├── historial/
 │   │   │   └── historial.html
 │   │   │
 │   │   └── administracion/
 │   │       └── usuarios.html
+│   │
+│   ├── api/
+│   │   ├── config.php
+│   │   └── pdf/
+│   │       ├── subir.php
+│   │       ├── PdfProcessor.php
+│   │       └── tmp/             → archivos temporales (no versionar)
 │   │
 │   ├── css/
 │   │   ├── variables.css
@@ -192,6 +216,9 @@ La raíz pública del proyecto será `public/`.
 │   │   ├── auth.css
 │   │   ├── dashboard.css
 │   │   ├── procesamiento.css
+│   │   ├── hallazgo.css
+│   │   ├── paso1.css
+│   │   ├── paso2.css
 │   │   ├── historial.css
 │   │   └── administracion.css
 │   │
@@ -199,6 +226,9 @@ La raíz pública del proyecto será `public/`.
 │   │   ├── app.js
 │   │   ├── auth.js
 │   │   ├── dashboard.js
+│   │   ├── hallazgo.js
+│   │   ├── paso1.js
+│   │   ├── paso2.js
 │   │   ├── procesar.js
 │   │   ├── resultado.js
 │   │   ├── historial.js
@@ -215,6 +245,24 @@ No es obligatorio crear todos estos archivos desde el inicio.
 
 Crear únicamente los archivos necesarios para la fase actual.
 
+El flujo de procesamiento definido es:
+
+```text
+dashboard
+ ↓
+subir-pdf
+ ↓
+procesando
+ ↓
+hallazgo (ficha resumida del hallazgo detectado)
+ ↓
+paso2 (validación del técnico)
+ ↓
+resultado (generación de Excel)
+```
+
+El trigger de subida reside actualmente en el Dashboard (dropzone). El endpoint `/api/pdf/subir.php` procesa el PDF y `dashboard.js` redirige a `procesamiento/hallazgo/hallazgo.html` con el resultado. `paso1.html` muestra el detalle crudo de los datos extraídos.
+
 ---
 
 # 7. Nombres de archivos
@@ -227,6 +275,9 @@ Respetar exactamente los nombres definidos anteriormente.
 app.js
 auth.js
 dashboard.js
+hallazgo.js
+paso1.js
+paso2.js
 procesar.js
 resultado.js
 historial.js
@@ -243,6 +294,9 @@ components.css
 auth.css
 dashboard.css
 procesamiento.css
+hallazgo.css
+paso1.css
+paso2.css
 historial.css
 administracion.css
 ```
@@ -263,9 +317,12 @@ La aplicación debe utilizar exclusivamente la paleta definida:
 
     --blanco: #FFFFFF;
 
-    --gris-fondo: #F4F4F4;
+    --gris-fondo: #F3F5F8;
     --gris-borde: #CFCFCF;
     --gris-texto: #666666;
+
+    --naranja: #F59A23;
+    --naranja-oscuro: #B45309;
 }
 ```
 
@@ -292,6 +349,12 @@ Bordes de inputs, tarjetas y tablas.
 
 --gris-texto
 Texto secundario.
+
+--naranja
+Estados funcionales: advertencias, estados de proceso en curso.
+
+--naranja-oscuro
+Texto/hover de alertas de advertencia.
 ```
 
 No inventar una nueva paleta.
@@ -395,6 +458,15 @@ Componentes reutilizables:
 * Badges.
 * Modales.
 
+Incluye los estilos compartidos que usan varias páginas:
+
+* `.page-card` y su familia (`.page-card-header`, `.page-card-title`, `.page-card-subtitle`, `.card-body`, `.card-center`).
+* Formularios (`.form-grid`, `.form-group`, `.form-label`, `.form-input`, `.form-select`, `.form-textarea`, `.form-error`, `.field-full`).
+* Listas de información (`.info-list`, `.info-item`).
+* `.empty-text`.
+
+Los CSS específicos de página (`paso1.css`, `paso2.css`, etc.) solo deben contener estilos propios de esa página. **No** reproducir componentes que ya viven en `components.css`.
+
 ### CSS específico
 
 Cada página puede tener su propio archivo:
@@ -403,6 +475,9 @@ Cada página puede tener su propio archivo:
 auth.css
 dashboard.css
 procesamiento.css
+hallazgo.css
+paso1.css
+paso2.css
 historial.css
 administracion.css
 ```
@@ -429,19 +504,37 @@ Gestiona login y registro.
 dashboard.js
 ```
 
-Gestiona únicamente el dashboard.
+Gestiona únicamente el dashboard (incluye la subida del PDF al endpoint `/api/pdf/subir.php`).
+
+```text
+hallazgo.js
+```
+
+Muestra la ficha del hallazgo detectado (resumen, campos estructurados del `hallazgo`, evidencia fotográfica).
+
+```text
+paso1.js
+```
+
+Muestra el resultado del procesamiento (texto, coordenadas, registro fotográfico).
+
+```text
+paso2.js
+```
+
+Gestiona el formulario de validación del técnico.
 
 ```text
 procesar.js
 ```
 
-Gestiona la carga y simulación del procesamiento del PDF.
+Gestiona la carga y el estado de procesamiento del PDF (fases posteriores).
 
 ```text
 resultado.js
 ```
 
-Gestiona la visualización del resultado.
+Gestiona la visualización del resultado final (fases posteriores).
 
 ---
 
@@ -460,6 +553,8 @@ const mockData = {
     resultadoPDF: {}
 };
 ```
+
+> **Estado actual:** `mockData` vive en `public/js/app.js` como estructura de referencia. Dashboard, Hallazgo, Paso 1 y Paso 2 ya usan datos reales del endpoint `/api/pdf/subir.php`; `mockData` se mantiene como fallback/plantilla para los módulos aún simulados (usuarios, procesos, resultado PDF final). No eliminar mientras existan módulos sin backend real.
 
 No crear datos ficticios innecesarios.
 
@@ -514,13 +609,25 @@ login.html
  ↓
 dashboard.html
  ↓
-subir-pdf.html
+procesamiento/hallazgo/hallazgo.html
  ↓
-procesando.html
- ↓
-resultado.html
+procesamiento/paso2/paso2.html
  ↓
 historial.html
+```
+
+El flujo de procesamiento (con el endpoint real) es:
+
+```text
+dashboard (dropzone)
+ ↓
+subir.php (post /api/pdf)
+ ↓
+hallazgo (ficha resumida)
+ ↓
+paso2 (validación del técnico)
+ ↓
+resultado (futuro)
 ```
 
 No implementar un sistema SPA.
@@ -575,6 +682,8 @@ Crear:
 
 Utilizar información simulada.
 
+> **Estado actual:** el Dashboard incluye el dropzone que envía el PDF a `/api/pdf/subir.php` y redirige a `procesamiento/hallazgo/hallazgo.html`.
+
 ---
 
 ## FASE 4 — Subir PDF
@@ -587,7 +696,7 @@ Crear:
 * Información del archivo.
 * Botón "Procesar PDF".
 
-Solo simular el procesamiento.
+> **Estado actual:** en lugar de una página separada `subir-pdf.html`, la subida vive en el Dashboard (dropzone). El procesamiento real se ejecuta en `/api/pdf/subir.php` y la ficha del resultado se muestra en `procesamiento/hallazgo/hallazgo.html`. Mantener esta integración ya que es funcional.
 
 ---
 
@@ -659,27 +768,125 @@ Inicialmente todo será simulado.
 
 # 17. Procesamiento del PDF
 
-El procesamiento real se implementará posteriormente.
+El procesamiento real del PDF está **implementado** en `public/api/pdf/`.
 
-Cuando llegue esa etapa, el flujo será:
+## Backend de procesamiento PDF
+
+```text
+public/api/
+├── config.php            → rutas de binarios Poppler + Tesseract
+└── pdf/
+    ├── subir.php         → endpoint HTTP (POST multipart/form-data, campo "archivo")
+    ├── PdfProcessor.php  → orquesta todo el flujo de extracción
+    └── tmp/              → archivos temporales (NO versionar)
+```
+
+Tecnologías:
+
+```text
+PHP
+Poppler (pdftotext, pdftoppm, pdfimages, pdfinfo)
+Tesseract OCR + idioma español (spa)
+```
+
+El flujo de detección es:
 
 ```text
 PDF
  ↓
-Lectura
+pdftotext
  ↓
-Extracción de información
- ↓
-Localización de REGISTRO FOTOGRÁFICO
- ↓
-Identificación de la primera imagen correspondiente
- ↓
-Guardar imagen
- ↓
-Mostrar resultado
- ↓
-Generar Excel
+¿Hay capa de texto suficiente?
+ │
+ ├── Sí
+ │    ↓
+ │ pdftotext -bbox   → texto con coordenadas por palabra
+ │    ↓
+ │ texto + coordenadas
+ │
+ └── No (escaneado)
+      ↓
+   pdftoppm -png -r 200
+      ↓
+   Tesseract OCR (spa)
+      ↓
+     texto
 ```
+
+Posteriormente:
+
+```text
+Localizar sección "REGISTRO FOTOGRÁFICO"
+ ↓
+pdfimages -list  → inventario de imágenes por página
+ ↓
+Identificar la primera imagen correspondiente a la sección
+ ↓
+pdfimages -png   → extraer la imagen
+ ↓
+Extraer campos estructurados del formulario de hallazgos
+ ↓
+Devolver resultado al frontend (JSON)
+```
+
+### Detección de PDF escaneado
+
+`PdfProcessor::esEscaneado()` ejecuta `pdftotext` y, si el texto plano tiene menos de 20 caracteres, considera el documento escaneado y aplica OCR por página.
+
+### Normalización de codificación
+
+`PdfProcessor::normalizarTexto()` corrige la salida de Tesseract `pdftotext` cuando no es UTF-8 válido (p. ej. bytes de Windows-1252): si `preg_match('//u')` falla, se convierte de Windows-1252 a UTF-8.
+
+### Extracción estructurada del hallazgo
+
+`PdfProcessor::extraerHallazgo(array $texto)` parsea el formulario fijo del documento a partir del texto extraído (etiqueta seguida de su valor). Las etiquetas se declaran en `CAMPOS_ETIQUETAS` (con acentos y variantes para tolerar diferencias de OCR) y su orden de aparición en `CAMPOS_ORDEN`.
+
+Campos devueltos:
+
+```text
+fechaHora, quienReporta, aliado, regional, departamento, listaMunicipios,
+municipio, barrio, direccion, puntoReferencia, coordenadas,
+duenoInfraestructura, codigoPacvi, vulnerabilidad, asociarOT, prioridad,
+observaciones
+```
+
+El emparejamiento compara cada línea normalizada (mayúsculas + sin acentos, reutilizando `normalizar()`) contra el inicio de la etiqueta, tolerando sobras de OCR (p. ej. "CODIGO PACVI S"). Los valores vacíos se devuelven como `""`. El resultado viaja en la clave `hallazgo` de la respuesta.
+
+### Formato de respuesta
+
+`subir.php` devuelve JSON con la estructura:
+
+```text
+{
+  "ok": true,
+  "archivo": "...",
+  "escaneado": true|false,
+  "paginas": N,
+  "texto": ["página 1", "página 2", ...],
+  "coordenadas": [...],
+  "registro": { "page": N, ... } | null,
+  "hallazgo": { "fechaHora": "...", "direccion": "...", ... },
+  "imagen": { "original": ..., "extraida": ..., "ruta_abs": ..., "url": ... },
+  "archivo_original": "..."
+}
+```
+
+El `json_encode` de la respuesta se emite con `JSON_INVALID_UTF8_SUBSTITUTE` para no romper el frontend si algún byte residual del OCR no es UTF-8 válido.
+
+### Archivos temporales
+
+Todos los archivos generados durante el procesamiento (PDFs subidos, PNG de OCR, imágenes extraídas) se almacenan en `public/api/tmp/`. **Estos archivos NO deben versionarse** (ver sección .gitignore).
+
+### Dependencias de binarios
+
+* Poppler: detectado vía `config.php` (override `POPPLER_BIN`, instalación winget de Windows o PATH del sistema).
+* Tesseract: detectado vía `config.php` (`TESSERACT_BIN`, `Program Files\Tesseract-OCR` o PATH). Se requiere el idioma `spa` instalado.
+* `main.py` arranca `php -S` para servir los endpoints además de los estáticos.
+
+### Configuración local (desarrollo Windows)
+
+* Poppler instalado por winget: `oschwartz10612.Poppler_Microsoft.Winget.Source...`.
+* Tesseract instalado en `C:\Program Files\Tesseract-OCR\` con `spa.traineddata`.
 
 La estructura del documento se considera consistente según las reglas establecidas para el proyecto.
 
@@ -722,7 +929,7 @@ Durante el prototipo únicamente simular la acción y el resultado.
 
 # 20. Backend futuro
 
-Cuando termine el prototipo visual se podrá implementar:
+Cuando el resto de módulos supere el prototipo visual, se podrá implementar:
 
 ```text
 PHP
@@ -737,12 +944,12 @@ Endpoints previstos:
 ```text
 /api/auth/
 /api/usuarios/
-/api/pdf/
+/api/pdf/        → ya implementado para el procesamiento (subir + PdfProcessor)
 /api/procesos/
 /api/excel/
 ```
 
-No crear estos endpoints durante la etapa visual.
+El endpoint `/api/pdf/subir.php` **ya existe y es funcional**. El resto de endpoints no debe crearse durante la etapa visual (mientras autenticación, sesiones, persistencia y Excel sigan siendo simulados o futuros).
 
 ---
 
@@ -857,7 +1064,9 @@ El objetivo inicial es construir **una interfaz visual completa, coherente y fun
 
 # 27. Layout de aplicación y menú hamburguesa (estilo reutilizable)
 
-Todas las páginas internas (Dashboard, Subir PDF, Procesando, Resultado, Historial, Administración) deben reutilizar el mismo layout de aplicación y el mismo menú lateral.
+Todas las páginas internas (Dashboard, Subir PDF, Procesando, Paso 1, Paso 2, Resultado, Historial, Administración) deben reutilizar el mismo layout de aplicación y el mismo menú lateral.
+
+> **Estado actual del menú:** mientras Historial y Administración no tengan páginas reales, el sidebar debe contener únicamente **Dashboard** y **Procesamiento**. Los enlaces a `historial.html` y `usuarios.html` se agregan cuando esas páginas existan.
 
 ## 27.1 Estructura HTML
 
@@ -915,3 +1124,34 @@ No se requiere CSS adicional por página para el menú.
 * Backdrop con desenfoque: `backdrop-filter: blur(3px)`.
 * En móvil el logo se oculta, se muestra "Menú" como etiqueta y el botón X circular de cristal.
 * En escritorio (> 900px) la sidebar es una columna fija; "Menú" y la X quedan ocultos.
+
+---
+
+# 28. Gestión de archivos temporales, .gitignore y scripts de prueba
+
+## .gitignore
+
+El repositorio raíz cuenta con un `.gitignore` que excluye, como mínimo:
+
+```text
+public/api/tmp/**          → archivos temporales del procesamiento PDF
+*.tmp
+*.temp
+*.log
+.DS_Store
+Thumbs.db
+```
+
+Todos los archivos generados por el procesamiento (PDFs subidos, PNG de OCR, imágenes extraídas) viven en `public/api/tmp/` y **nunca se versionan**.
+
+## Scripts de prueba del PDF
+
+Los generadores de PDF de prueba viven en `tests/fixtures/pdf/` y **no** forman parte de la API de producción:
+
+```text
+tests/fixtures/pdf/
+├── generar_prueba.php        → genera un PDF de texto simple (prueba pdftotext)
+└── generar_prueba_imagen.php → genera un PDF con texto + imagen (prueba pdfimages)
+```
+
+Se ejecutan con PHP CLI y escriben su salida en `public/api/tmp/` para poder probar el pipeline real.

@@ -1,0 +1,13 @@
+# Temporales del procesamiento PDF
+public/api/tmp/**
+
+# Archivos temporales
+*.tmp
+*.temp
+
+# Logs
+*.log
+
+# Sistema
+.DS_Store
+Thumbs.db

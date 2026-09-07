@@ -15,6 +15,14 @@
     var dzFilename = document.getElementById('dz-filename');
     var dzSize = document.getElementById('dz-size');
     var dzError = document.getElementById('dz-error');
+    var dzStatus = document.getElementById('dz-status');
+    var dzCountdown = document.getElementById('dz-countdown');
+    var dzDone = document.getElementById('dz-done');
+    var dzCount = document.getElementById('dz-count');
+    var btnVerPdf = document.getElementById('btn-ver-pdf');
+
+    var CONTEO_INICIAL = 10;
+    var cuentaIntervalo = null;
 
     function getEl(id) {
         return document.getElementById(id);
@@ -76,10 +84,94 @@
     }
 
     function mostrarError(mensaje) {
+        detenerCuenta();
         dzFile.hidden = true;
         dzEmpty.hidden = false;
+        dzStatus.hidden = true;
+        dropzone.classList.remove('processing');
+        dropzone.disabled = false;
         dzError.textContent = mensaje;
         dzError.hidden = false;
+    }
+
+    function detenerCuenta() {
+        if (cuentaIntervalo !== null) {
+            clearInterval(cuentaIntervalo);
+            cuentaIntervalo = null;
+        }
+    }
+
+    function iniciarCuenta() {
+        detenerCuenta();
+
+        var restante = CONTEO_INICIAL;
+        dzCount.textContent = String(restante);
+        dzCountdown.hidden = false;
+        dzDone.hidden = true;
+        dzStatus.hidden = false;
+        dzError.hidden = true;
+        btnVerPdf.disabled = true;
+
+        cuentaIntervalo = setInterval(function () {
+            restante -= 1;
+            if (restante < 0) {
+                restante = 0;
+            }
+            dzCount.textContent = String(restante);
+        }, 1000);
+    }
+
+    function completarProceso() {
+        detenerCuenta();
+        dzCountdown.hidden = true;
+        dzDone.hidden = false;
+        btnVerPdf.disabled = false;
+    }
+
+    function finalizarCarga() {
+        completarProceso();
+    }
+
+    function subirArchivo(archivo) {
+        var formData = new FormData();
+        formData.append('archivo', archivo);
+
+        dropzone.classList.add('processing');
+        dzSize.textContent = 'Procesando PDF...';
+        iniciarCuenta();
+
+        fetch('../../api/pdf/subir.php', {
+            method: 'POST',
+            body: formData
+        })
+            .then(function (resp) {
+                return resp.text().then(function (texto) {
+                    var data;
+                    try {
+                        data = JSON.parse(texto);
+                    } catch (e) {
+                        data = null;
+                    }
+                    return { ok: resp.ok, data: data };
+                });
+            })
+            .then(function (res) {
+                if (!res.data || !res.data.ok) {
+                    throw new Error((res.data && res.data.error) || 'Error al procesar el PDF.');
+                }
+                App.guardarProceso(res.data);
+                finalizarCarga();
+            })
+            .catch(function (err) {
+                mostrarError(err.message || 'No se pudo procesar el archivo.');
+            });
+    }
+
+    function verPdfProcesado() {
+        if (btnVerPdf.disabled) {
+            return;
+        }
+        window.location.href = '../procesamiento/hallazgo/hallazgo.html';
     }
 
     function manejarArchivo(archivo) {
@@ -91,6 +183,7 @@
             return;
         }
         mostrarArchivo(archivo);
+        subirArchivo(archivo);
     }
 
     function configurarDropzone() {
@@ -142,6 +235,7 @@
     }
 
     getEl('logout-btn').addEventListener('click', cerrarSesion);
+    btnVerPdf.addEventListener('click', verPdfProcesado);
 
     mostrarUsuario();
     mostrarFecha();

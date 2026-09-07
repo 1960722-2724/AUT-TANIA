@@ -73,6 +73,13 @@
     color: var(--gris-texto);
 }
 
+.dropzone.processing {
+    pointer-events: none;
+    opacity: 0.6;
+    border-color: var(--naranja);
+    box-shadow: 0 0 0 4px rgba(245, 154, 35, 0.15);
+}
+
 .dz-error {
     margin-top: var(--spacing-md);
     padding: var(--spacing-sm) var(--spacing-md);
@@ -81,6 +88,78 @@
     color: #BE2626;
     border: 1.5px solid rgba(190, 38, 38, 0.35);
     font-size: 0.9rem;
+}
+
+.dz-status {
+    margin-top: var(--spacing-lg);
+    text-align: center;
+}
+
+.dz-countdown,
+.dz-done {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-lg);
+    border: 1px solid var(--gris-borde);
+    border-radius: var(--radius-lg);
+    background-color: var(--blanco);
+    box-shadow: var(--shadow-md);
+}
+
+.dz-icon-spin {
+    width: 34px;
+    height: 34px;
+    color: var(--naranja);
+    animation: dz-spin 1s linear infinite;
+}
+
+@keyframes dz-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dz-count-number {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    font-size: 2.4rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--azul-principal);
+}
+
+.dz-count-unit {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gris-texto);
+}
+
+.dz-count-label {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--azul-principal);
+}
+
+.dz-count-hint {
+    font-size: 0.85rem;
+    color: var(--gris-texto);
+}
+
+.dz-done-text {
+    font-size: 1rem;
+    color: var(--gris-texto);
+}
+
+.dz-done .btn {
+    margin-top: var(--spacing-xs);
+}
+
+.btn-icon {
+    width: 18px;
+    height: 18px;
 }
 
 @media (max-width: 480px) {

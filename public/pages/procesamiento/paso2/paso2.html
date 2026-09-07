@@ -9,17 +9,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../css/variables.css?v=3">
-    <link rel="stylesheet" href="../../css/base.css?v=3">
-    <link rel="stylesheet" href="../../css/components.css?v=3">
-    <link rel="stylesheet" href="../../css/layout.css?v=3">
-    <link rel="stylesheet" href="../../css/paso2.css?v=3">
+    <link rel="stylesheet" href="../../../css/variables.css?v=3">
+    <link rel="stylesheet" href="../../../css/base.css?v=3">
+    <link rel="stylesheet" href="../../../css/components.css?v=3">
+    <link rel="stylesheet" href="../../../css/layout.css?v=3">
+    <link rel="stylesheet" href="../../../css/paso2.css?v=3">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
         <div class="sidebar-brand">
             <span class="brand-kicker">Menú</span>
-            <img src="../../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
+            <img src="../../../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
             <button type="button" class="btn-sidebar-close" id="btn-sidebar-close" aria-label="Cerrar menú">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -31,7 +31,7 @@
 
         <nav class="sidebar-nav">
             <p class="nav-section">Principal</p>
-            <a href="../dashboard/dashboard.html" class="nav-link">
+            <a href="../../dashboard/dashboard.html" class="nav-link">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <rect x="3" y="3" width="7" height="7" rx="1"></rect>
@@ -41,25 +41,13 @@
                 </svg>
                 Dashboard
             </a>
-            <a href="../historial/historial.html" class="nav-link">
+            <a href="../../procesamiento/hallazgo/hallazgo.html" class="nav-link active">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
                 </svg>
-                Historial
-            </a>
-
-            <p class="nav-section">Administración</p>
-            <a href="../administracion/usuarios.html" class="nav-link">
-                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                Usuarios
+                Procesamiento
             </a>
         </nav>
 
@@ -162,7 +150,7 @@
         </main>
     </div>
 
-    <script src="../../js/app.js?v=3"></script>
-    <script src="../../js/paso2.js?v=3"></script>
+    <script src="../../../js/app.js?v=3"></script>
+    <script src="../../../js/paso2.js?v=3"></script>
 </body>
 </html>

@@ -122,7 +122,7 @@
 
     function cerrarSesion() {
         App.cerrarSesion();
-        window.location.href = '../auth/login.html';
+        window.location.href = '../../auth/login.html';
     }
 
     form.addEventListener('submit', manejarEnvio);
