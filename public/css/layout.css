@@ -232,6 +232,8 @@
     cursor: pointer;
     box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.8);
     transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.12s ease;
+    z-index: 110;
+    position: relative;
 }
 
 .btn-toggle-sidebar:hover {
@@ -362,6 +364,11 @@
 
     .btn-toggle-sidebar {
         display: inline-flex;
+    }
+
+    .app-body.sidebar-open .btn-toggle-sidebar {
+        border-color: var(--azul-borde);
+        color: var(--azul-principal);
     }
 
     .topbar {
