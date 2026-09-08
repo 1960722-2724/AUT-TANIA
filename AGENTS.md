@@ -1168,3 +1168,41 @@ tests/fixtures/pdf/
 ```
 
 Se ejecutan con PHP CLI y escriben su salida en `public/api/tmp/` para poder probar el pipeline real.
+
+---
+
+# 29. Subida masiva de PDFs (carpeta)
+
+## Regla de extracción
+Los PDFs de un lote comparten SIEMPRE la misma estructura de extracción (el formulario
+fijo de hallazgos de la sección 17). Todos se procesan con el mismo pipeline y las mismas
+etiquetas (`CAMPOS_ETIQUETAS` / `CAMPOS_ORDEN`). No debe asumirse otra estructura por archivo.
+
+## Requisito
+Subir una CARPETA con todos los PDFs juntos (o varios PDFs a la vez) y procesarlos
+secuencialmente. Flujo:
+
+1. Dropzone del Dashboard permite elegir carpeta (input `multiple` + `webkitdirectory`)
+   o varios archivos. Se filtran solo `.pdf`.
+2. La tarjeta del archivo muestra el conteo: "N PDFs".
+3. Se procesan UNO A LA VEZ contra `/api/pdf/subir.php` (no hay endpoint de lote;
+   se reutiliza el flujo unitario).
+4. Modal de progreso: anillo reiniciado por archivo, subtítulo "Archivo X de N" +
+   nombre del archivo + fase ("Subiendo...", "Procesando PDF...").
+5. Una falla por archivo NO detiene el lote: se marca como error y continúa.
+6. Al terminar: resumen en el modal con lista scrolleable:
+   `✓ nombre.pdf` → clic guarda ese resultado como proceso actual y abre hallazgo.
+   `✕ nombre.pdf` → motivo del error.
+   Botón "Cerrar" para volver al dropzone vacío.
+7. La X cancela el lote completo y limpia resultados parciales.
+
+## Límites y reglas de no romper
+- Resultados guardados en `sessionStorage` (`autn_lote_actual` + `autn_proceso_actual`).
+  TOPE del lote: 20 PDFs (~5MB de sessionStorage). Más requiere persistencia real (futuro).
+- NO borrar archivos de `public/api/tmp/` durante el lote: las imágenes extraídas viven ahí
+  y hallazgo las referencia (persistencia es fase posterior).
+- No crear endpoint de lote, colas ni BD (ver sección 20).
+
+## Estado actual
+La subida es UNITARIA (un PDF a la vez). Subida masiva por carpeta está documentada,
+NO implementada.
