@@ -119,36 +119,53 @@
 
             <p class="dz-error" id="dz-error" role="alert" hidden></p>
 
-            <div class="dz-status" id="dz-status" hidden>
-                <div class="dz-progress-wrap" id="dz-progress-wrap" role="status" aria-live="polite">
-                    <div class="dz-progress-header">
-                        <svg class="dz-icon dz-icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-                        </svg>
-                        <span class="dz-progress-pct" id="dz-progress-pct">0%</span>
+            <div class="dz-modal" id="dz-modal" hidden>
+                <div class="dz-modal-backdrop" aria-hidden="true"></div>
+                <div class="dz-modal-card" role="dialog" aria-modal="true" aria-label="Proceso del documento">
+                    <div class="dz-state" id="dz-state">
+                        <button type="button" class="btn-cancelar" id="btn-cancelar" aria-label="Cancelar subida del documento">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div class="dz-progress-ring" aria-hidden="true">
+                            <svg class="dz-ring" viewBox="0 0 120 120">
+                                <defs>
+                                    <linearGradient id="grad-dz" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#5AD9FF"></stop>
+                                        <stop offset="55%" stop-color="#8FA9FF"></stop>
+                                        <stop offset="100%" stop-color="#3D4FC7"></stop>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="dz-ring-track" cx="60" cy="60" r="52"></circle>
+                                <circle class="dz-ring-progress" id="dz-ring-progress" cx="60" cy="60" r="52"></circle>
+                            </svg>
+                            <span class="dz-ring-spin" aria-hidden="true"></span>
+                        </div>
+                        <h3 class="dz-state-title">Procesando documento</h3>
+                        <p class="dz-state-sub" id="dz-state-sub">Generando archivo PDF...</p>
                     </div>
-                    <div class="dz-progress-track">
-                        <div class="dz-progress-fill" id="dz-progress-fill"></div>
-                    </div>
-                    <p class="dz-progress-label" id="dz-progress-label">Subiendo archivo...</p>
-                </div>
 
-                <div class="dz-done" id="dz-done" hidden>
-                    <svg class="dz-icon dz-icon-done" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                    <p class="dz-done-text">PDF procesado correctamente</p>
-                    <button type="button" class="btn btn-primary" id="btn-ver-pdf" disabled>
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        Ver PDF procesado
-                    </button>
+                    <div class="dz-done" id="dz-done" hidden>
+                        <span class="dz-check-circle" aria-hidden="true">
+                            <svg class="dz-check" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"></polyline>
+                            </svg>
+                        </span>
+                        <h3 class="dz-state-title">PDF procesado correctamente</h3>
+                        <p class="dz-state-sub">Tu documento está listo para revisar</p>
+                        <button type="button" class="btn btn-inverse" id="btn-ver-pdf" disabled>
+                            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            Ver PDF procesado
+                        </button>
+                    </div>
                 </div>
             </div>
         </main>

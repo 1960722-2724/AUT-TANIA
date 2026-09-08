@@ -15,13 +15,15 @@
     var dzFilename = document.getElementById('dz-filename');
     var dzSize = document.getElementById('dz-size');
     var dzError = document.getElementById('dz-error');
-    var dzStatus = document.getElementById('dz-status');
-    var dzProgressWrap = document.getElementById('dz-progress-wrap');
-    var dzProgressFill = document.getElementById('dz-progress-fill');
-    var dzProgressPct = document.getElementById('dz-progress-pct');
-    var dzProgressLabel = document.getElementById('dz-progress-label');
+    var dzModal = document.getElementById('dz-modal');
+    var dzState = document.getElementById('dz-state');
+    var dzStateSub = document.getElementById('dz-state-sub');
+    var dzRingProgress = document.getElementById('dz-ring-progress');
     var dzDone = document.getElementById('dz-done');
     var btnVerPdf = document.getElementById('btn-ver-pdf');
+    var btnCancelar = document.getElementById('btn-cancelar');
+
+    var CIRCUNFERENCIA = 2 * Math.PI * 52;
 
     var peticionXhr = null;
     var intervaloProceso = null;
@@ -90,7 +92,7 @@
         detenerProceso();
         dzFile.hidden = true;
         dzEmpty.hidden = false;
-        dzStatus.hidden = true;
+        dzModal.hidden = true;
         dropzone.classList.remove('processing');
         dropzone.disabled = false;
         dzError.textContent = mensaje;
@@ -116,10 +118,9 @@
             pct = 100;
         }
         progresoActual = pct;
-        dzProgressFill.style.width = pct + '%';
-        dzProgressPct.textContent = pct + '%';
+        dzRingProgress.style.strokeDashoffset = (CIRCUNFERENCIA * (1 - pct / 100)).toFixed(2) + 'px';
         if (texto) {
-            dzProgressLabel.textContent = texto;
+            dzStateSub.textContent = texto;
         }
     }
 
@@ -147,21 +148,37 @@
         intervaloProceso = null;
         progresoActual = 0;
 
-        dzProgressWrap.hidden = false;
+        dzState.hidden = false;
         dzDone.hidden = true;
-        dzStatus.hidden = false;
+        dzModal.hidden = false;
         dzError.hidden = true;
         btnVerPdf.disabled = true;
 
-        actualizarProgreso(0, 'Subiendo archivo...');
+        actualizarProgreso(0, 'Preparando PDF...');
     }
 
     function completarProceso() {
         detenerProceso();
-        actualizarProgreso(100, 'Documento procesado correctamente.');
-        dzProgressWrap.hidden = true;
+        actualizarProgreso(100, 'Documento listo');
+        dzSize.textContent = 'PDF procesado correctamente';
+        dzState.hidden = true;
         dzDone.hidden = false;
         btnVerPdf.disabled = false;
+    }
+
+    function cancelarCarga() {
+        detenerProceso();
+        dzState.hidden = false;
+        dzDone.hidden = true;
+        dzModal.hidden = true;
+        btnVerPdf.disabled = true;
+        dzError.hidden = true;
+        dropzone.classList.remove('processing');
+        dropzone.disabled = false;
+        dzEmpty.hidden = false;
+        dzFile.hidden = true;
+        fileInput.value = '';
+        actualizarProgreso(0, 'Preparando PDF...');
     }
 
     function finalizarCarga() {
@@ -192,7 +209,7 @@
         });
 
         peticionXhr.upload.addEventListener('load', function () {
-            actualizarProgreso(30, 'Documento subido. Procesando...');
+            actualizarProgreso(30, 'Procesando PDF...');
         });
 
         peticionXhr.addEventListener('load', function () {
@@ -210,7 +227,7 @@
                 return;
             }
 
-            actualizarProgreso(95, 'Documento procesado. Finalizando...');
+            actualizarProgreso(95, 'Finalizando...');
             App.guardarProceso(res);
             setTimeout(finalizarCarga, 600);
         });
@@ -299,6 +316,7 @@
 
     getEl('logout-btn').addEventListener('click', cerrarSesion);
     btnVerPdf.addEventListener('click', verPdfProcesado);
+    btnCancelar.addEventListener('click', cancelarCarga);
 
     mostrarUsuario();
     mostrarFecha();

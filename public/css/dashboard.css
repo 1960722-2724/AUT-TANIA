@@ -52,9 +52,12 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
+    justify-content: center;
     padding: var(--spacing-md) var(--spacing-lg);
-    border-radius: var(--radius-sm);
-    background-color: rgba(46, 59, 146, 0.06);
+    border: 1px solid rgba(46, 59, 146, 0.12);
+    border-radius: var(--radius-md);
+    background-color: var(--blanco);
+    box-shadow: var(--shadow-sm);
 }
 
 .dz-meta {
@@ -90,31 +93,111 @@
     font-size: 0.9rem;
 }
 
-.dz-status {
-    margin-top: var(--spacing-lg);
-    text-align: center;
+.dz-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 120;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-lg);
 }
 
-.dz-progress-wrap,
+.dz-modal[hidden] {
+    display: none;
+}
+
+.dz-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(21, 30, 61, 0.55), rgba(46, 59, 146, 0.28));
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
+
+.dz-modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    padding: 44px 32px 40px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 24px;
+    background:
+        radial-gradient(140% 90% at 100% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 52%),
+        linear-gradient(175deg, #3D4FC7 0%, #243187 100%);
+    color: var(--blanco);
+    text-align: center;
+    box-shadow:
+        0 40px 80px rgba(21, 30, 61, 0.45),
+        0 12px 30px rgba(21, 30, 61, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+    animation: dz-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dz-modal-in {
+    from {
+        opacity: 0;
+        transform: translateY(14px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.dz-state,
 .dz-done {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--spacing-sm);
-    padding: var(--spacing-lg);
-    border: 1px solid var(--gris-borde);
-    border-radius: var(--radius-lg);
-    background-color: var(--blanco);
-    box-shadow: var(--shadow-md);
-    min-width: min(480px, 100%);
 }
 
-.dz-icon-spin {
-    width: 26px;
-    height: 26px;
-    color: var(--naranja);
-    animation: dz-spin 1s linear infinite;
-    flex-shrink: 0;
+.dz-state[hidden],
+.dz-done[hidden] {
+    display: none;
+}
+
+.dz-progress-ring {
+    position: relative;
+    width: 112px;
+    height: 112px;
+    margin-bottom: var(--spacing-md);
+}
+
+.dz-ring {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+
+.dz-ring-track {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.14);
+    stroke-width: 8;
+}
+
+.dz-ring-progress {
+    fill: none;
+    stroke: url(#grad-dz);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 326.73;
+    stroke-dashoffset: 326.73;
+    filter: drop-shadow(0 0 8px rgba(90, 217, 255, 0.65));
+    transition: stroke-dashoffset 0.35s ease;
+}
+
+.dz-ring-spin {
+    position: absolute;
+    inset: 14px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: rgba(140, 225, 255, 0.95);
+    border-right-color: rgba(140, 225, 255, 0.35);
+    animation: dz-spin 1.3s linear infinite;
+    filter: drop-shadow(0 0 6px rgba(140, 225, 255, 0.80));
 }
 
 @keyframes dz-spin {
@@ -123,58 +206,97 @@
     }
 }
 
-.dz-progress-header {
+.dz-state-title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--blanco);
+    line-height: 1.25;
+}
+
+.dz-state-sub {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.dz-check-circle {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-sm);
-}
-
-.dz-progress-pct {
-    font-size: 1.6rem;
-    font-weight: 700;
-    line-height: 1;
+    width: 92px;
+    height: 92px;
+    margin-bottom: var(--spacing-md);
+    border-radius: 50%;
+    background-color: var(--blanco);
     color: var(--azul-principal);
-    min-width: 68px;
-    text-align: left;
+    box-shadow: 0 14px 30px rgba(21, 30, 61, 0.30);
 }
 
-.dz-progress-track {
-    width: 100%;
-    height: 14px;
-    border-radius: 999px;
-    background-color: var(--gris-fondo);
-    border: 1px solid var(--gris-borde);
-    overflow: hidden;
-}
-
-.dz-progress-fill {
-    width: 0%;
-    height: 100%;
-    border-radius: 999px;
-    background: linear-gradient(90deg, var(--azul-borde), var(--azul-principal));
-    transition: width 0.35s ease;
-}
-
-.dz-progress-label {
-    font-size: 0.95rem;
-    color: var(--gris-texto);
-}
-
-.dz-done-text {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--azul-principal);
-}
-
-.dz-icon-done {
-    width: 48px;
-    height: 48px;
-    color: var(--azul-principal);
+.dz-check {
+    width: 46px;
+    height: 46px;
 }
 
 .dz-done .btn {
-    margin-top: var(--spacing-xs);
+    margin-top: var(--spacing-md);
+}
+
+.btn-cancelar {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.12);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.90);
+    cursor: pointer;
+    box-shadow:
+        0 6px 16px rgba(21, 30, 61, 0.25),
+        inset 0 1px 0 rgba(255, 255, 255, 0.30);
+    transition: background-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.16s ease;
+}
+
+.btn-cancelar:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+    color: var(--blanco);
+    box-shadow:
+        0 8px 20px rgba(21, 30, 61, 0.30),
+        inset 0 1px 0 rgba(255, 255, 255, 0.40);
+}
+
+.btn-cancelar:active {
+    transform: rotate(90deg) scale(0.92);
+}
+
+.btn-cancelar svg {
+    width: 18px;
+    height: 18px;
+}
+
+.btn-inverse {
+    background-color: var(--blanco);
+    color: var(--azul-principal);
+    font-weight: 700;
+    box-shadow: 0 10px 24px rgba(21, 30, 61, 0.30);
+}
+
+.btn-inverse:hover {
+    background-color: #EDF0FA;
+    color: var(--azul-hover);
+    box-shadow: 0 8px 20px rgba(21, 30, 61, 0.30);
+}
+
+.btn-inverse:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    box-shadow: none;
 }
 
 .btn-icon {

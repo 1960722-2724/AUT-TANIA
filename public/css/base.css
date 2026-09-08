@@ -14,6 +14,8 @@ body {
     line-height: 1.5;
     color: var(--gris-texto);
     background-color: var(--gris-fondo);
+    background-image: linear-gradient(180deg, #F5F7FC 0%, #EEF3FF 100%);
+    background-attachment: fixed;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
