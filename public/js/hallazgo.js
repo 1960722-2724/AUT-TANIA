@@ -31,7 +31,9 @@
             campos: [
                 { clave: 'duenoInfraestructura', etiqueta: 'Dueño de infraestructura' },
                 { clave: 'codigoPacvi', etiqueta: 'Código PACVI' },
-                { clave: 'vulnerabilidad', etiqueta: 'Vulnerabilidad', destacado: true },
+                { clave: 'vulnerabilidadesInfraestructura', etiqueta: 'Vulnerabilidades de infraestructura', ancho: 'field-full' },
+                { clave: 'estadoInfraestructura', etiqueta: 'Estado de infraestructura', destacado: true, ancho: 'field-full' },
+                { clave: 'vulnerabilidad', etiqueta: 'Vulnerabilidad red propia', destacado: true },
                 { clave: 'asociarOT', etiqueta: 'Asociar OT' },
                 { clave: 'prioridad', etiqueta: 'Prioridad', ancho: 'field-full' }
             ]

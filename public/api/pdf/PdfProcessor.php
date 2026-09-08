@@ -40,6 +40,8 @@ class PdfProcessor
         'coordenadas',
         'duenoInfraestructura',
         'codigoPacvi',
+        'vulnerabilidadesInfraestructura',
+        'estadoInfraestructura',
         'vulnerabilidad',
         'asociarOT',
         'prioridad',
@@ -64,6 +66,8 @@ class PdfProcessor
         'coordenadas'           => ['COORDENADAS'],
         'duenoInfraestructura'  => ['DUEÑO INFRAESTRUCTURA', 'DUEÑO DE INFRAESTRUCTURA'],
         'codigoPacvi'           => ['CODIGO PACVI', 'CÓDIGO PACVI'],
+        'vulnerabilidadesInfraestructura' => ['VULNERABILIDADES DE INFRAESTRUCTURA', 'VULNERABILIDADES INFRAESTRUCTURA'],
+        'estadoInfraestructura' => ['ESTADO DE INFRAESTRUCTURA', 'ESTADO DE LA INFRAESTRUCTURA'],
         'vulnerabilidad'        => ['VULNERABILIDADES RED PROPIA', 'VULNERABILIDAD RED PROPIA'],
         'asociarOT'             => ['ASOCIAR OT'],
         'prioridad'             => ['PRIORIDAD'],
@@ -556,6 +560,9 @@ class PdfProcessor
                 continue;
             }
             $valor = trim(implode("\n", $valores[$clave]));
+            if ($clave === 'estadoInfraestructura') {
+                $valor = $this->limpiarValorEstadoInfraestructura($valor);
+            }
             if ($clave === 'coordenadas' && !$this->tieneFormatoCoordenada($valor)) {
                 $resultado[$clave] = '';
                 continue;
@@ -563,6 +570,25 @@ class PdfProcessor
             $resultado[$clave] = $valor;
         }
         return $resultado;
+    }
+
+    /**
+     * Elimina de la respuesta la instrucción del formulario
+     * "INDIQUE EL NIVEL DE DETERIORO" dejando solo el nivel marcado.
+     */
+    private function limpiarValorEstadoInfraestructura(string $valor): string
+    {
+        $lineas = preg_split('/\r\n|\r|\n/', $valor) ?: [];
+        $filtradas = [];
+        foreach ($lineas as $linea) {
+            if (mb_stripos($linea, 'INDIQUE EL NIVEL DE DETERIORO') !== false) {
+                continue;
+            }
+            $filtradas[] = trim($linea);
+        }
+        return trim(implode("\n", array_filter($filtradas, function ($l) {
+            return $l !== '';
+        })));
     }
 
     /**

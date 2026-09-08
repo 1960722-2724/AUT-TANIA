@@ -120,18 +120,27 @@
             <p class="dz-error" id="dz-error" role="alert" hidden></p>
 
             <div class="dz-status" id="dz-status" hidden>
-                <div class="dz-countdown" id="dz-countdown" role="status" aria-live="polite">
-                    <svg class="dz-icon dz-icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                        <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-                    </svg>
-                    <p class="dz-count-number"><span id="dz-count">10</span><span class="dz-count-unit">s</span></p>
-                    <p class="dz-count-label">Procesando PDF...</p>
-                    <p class="dz-count-hint">La cuenta regresiva termina cuando el documento esté listo.</p>
+                <div class="dz-progress-wrap" id="dz-progress-wrap" role="status" aria-live="polite">
+                    <div class="dz-progress-header">
+                        <svg class="dz-icon dz-icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                        </svg>
+                        <span class="dz-progress-pct" id="dz-progress-pct">0%</span>
+                    </div>
+                    <div class="dz-progress-track">
+                        <div class="dz-progress-fill" id="dz-progress-fill"></div>
+                    </div>
+                    <p class="dz-progress-label" id="dz-progress-label">Subiendo archivo...</p>
                 </div>
 
                 <div class="dz-done" id="dz-done" hidden>
-                    <p class="dz-done-text">PDF procesado correctamente. Revisa el resultado.</p>
+                    <svg class="dz-icon dz-icon-done" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                    <p class="dz-done-text">PDF procesado correctamente</p>
                     <button type="button" class="btn btn-primary" id="btn-ver-pdf" disabled>
                         <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

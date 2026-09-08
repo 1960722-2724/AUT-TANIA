@@ -16,13 +16,15 @@
     var dzSize = document.getElementById('dz-size');
     var dzError = document.getElementById('dz-error');
     var dzStatus = document.getElementById('dz-status');
-    var dzCountdown = document.getElementById('dz-countdown');
+    var dzProgressWrap = document.getElementById('dz-progress-wrap');
+    var dzProgressFill = document.getElementById('dz-progress-fill');
+    var dzProgressPct = document.getElementById('dz-progress-pct');
+    var dzProgressLabel = document.getElementById('dz-progress-label');
     var dzDone = document.getElementById('dz-done');
-    var dzCount = document.getElementById('dz-count');
     var btnVerPdf = document.getElementById('btn-ver-pdf');
 
-    var CONTEO_INICIAL = 10;
-    var cuentaIntervalo = null;
+    var peticionXhr = null;
+    var intervaloProceso = null;
 
     function getEl(id) {
         return document.getElementById(id);
@@ -83,8 +85,18 @@
         dzSize.textContent = formatearTamano(archivo.size) + ' · ' + tipo;
     }
 
+    var ETAPAS_PROCESO = [
+        { pct: 40, texto: 'Extrayendo texto del documento...' },
+        { pct: 50, texto: 'Analizando la capa de texto del PDF...' },
+        { pct: 60, texto: 'Identificando el registro fotográfico...' },
+        { pct: 70, texto: 'Localizando el formulario de hallazgos...' },
+        { pct: 80, texto: 'Extrayendo la evidencia fotográfica...' },
+        { pct: 90, texto: 'Estructurando los campos del hallazgo...' },
+        { pct: 95, texto: 'Generando los resultados finales...' }
+    ];
+
     function mostrarError(mensaje) {
-        detenerCuenta();
+        detenerProceso();
         dzFile.hidden = true;
         dzEmpty.hidden = false;
         dzStatus.hidden = true;
@@ -94,36 +106,55 @@
         dzError.hidden = false;
     }
 
-    function detenerCuenta() {
-        if (cuentaIntervalo !== null) {
-            clearInterval(cuentaIntervalo);
-            cuentaIntervalo = null;
+    function detenerProceso() {
+        if (peticionXhr !== null) {
+            peticionXhr.abort();
+            peticionXhr = null;
+        }
+        if (intervaloProceso !== null) {
+            clearTimeout(intervaloProceso);
+            intervaloProceso = null;
         }
     }
 
-    function iniciarCuenta() {
-        detenerCuenta();
+    function actualizarProgreso(pct, texto) {
+        if (pct > 100) {
+            pct = 100;
+        }
+        dzProgressFill.style.width = pct + '%';
+        dzProgressPct.textContent = pct + '%';
+        if (texto) {
+            dzProgressLabel.textContent = texto;
+        }
+    }
 
-        var restante = CONTEO_INICIAL;
-        dzCount.textContent = String(restante);
-        dzCountdown.hidden = false;
+    function iniciarProgreso() {
+        peticionXhr = null;
+        intervaloProceso = null;
+
+        dzProgressWrap.hidden = false;
         dzDone.hidden = true;
         dzStatus.hidden = false;
         dzError.hidden = true;
         btnVerPdf.disabled = true;
 
-        cuentaIntervalo = setInterval(function () {
-            restante -= 1;
-            if (restante < 0) {
-                restante = 0;
-            }
-            dzCount.textContent = String(restante);
-        }, 1000);
+        actualizarProgreso(0, 'Subiendo archivo...');
+    }
+
+    function iniciarEtapasProceso() {
+        for (var i = 0; i < ETAPAS_PROCESO.length; i += 1) {
+            (function (etapa) {
+                intervaloProceso = setTimeout(function () {
+                    actualizarProgreso(etapa.pct, etapa.texto);
+                }, 1200 + i * 1400);
+            })(ETAPAS_PROCESO[i]);
+        }
     }
 
     function completarProceso() {
-        detenerCuenta();
-        dzCountdown.hidden = true;
+        detenerProceso();
+        actualizarProgreso(100, 'Documento procesado correctamente.');
+        dzProgressWrap.hidden = true;
         dzDone.hidden = false;
         btnVerPdf.disabled = false;
     }
@@ -138,33 +169,55 @@
 
         dropzone.classList.add('processing');
         dzSize.textContent = 'Procesando PDF...';
-        iniciarCuenta();
+        iniciarProgreso();
 
-        fetch('../../api/pdf/subir.php', {
-            method: 'POST',
-            body: formData
-        })
-            .then(function (resp) {
-                return resp.text().then(function (texto) {
-                    var data;
-                    try {
-                        data = JSON.parse(texto);
-                    } catch (e) {
-                        data = null;
-                    }
-                    return { ok: resp.ok, data: data };
-                });
-            })
-            .then(function (res) {
-                if (!res.data || !res.data.ok) {
-                    throw new Error((res.data && res.data.error) || 'Error al procesar el PDF.');
-                }
-                App.guardarProceso(res.data);
-                finalizarCarga();
-            })
-            .catch(function (err) {
-                mostrarError(err.message || 'No se pudo procesar el archivo.');
-            });
+        peticionXhr = new XMLHttpRequest();
+        peticionXhr.open('POST', '../../api/pdf/subir.php');
+        peticionXhr.responseType = 'text';
+
+        peticionXhr.upload.addEventListener('progress', function (evt) {
+            if (!evt.lengthComputable) {
+                return;
+            }
+            var pct = Math.round((evt.loaded / evt.total) * 30);
+            actualizarProgreso(pct, 'Subiendo archivo...');
+        });
+
+        peticionXhr.upload.addEventListener('load', function () {
+            actualizarProgreso(30, 'Documento subido. Procesando...');
+            iniciarEtapasProceso();
+        });
+
+        peticionXhr.addEventListener('load', function () {
+            var respuesta = typeof this.responseText === 'string' ? this.responseText : String(this.response || '');
+            var res;
+            try {
+                res = JSON.parse(respuesta);
+            } catch (e) {
+                res = null;
+            }
+            peticionXhr = null;
+
+            if (this.status >= 400 || !res || !res.ok) {
+                mostrarError((res && res.error) || 'Error al procesar el PDF.');
+                return;
+            }
+
+            actualizarProgreso(95, 'Documento procesado. Finalizando...');
+            App.guardarProceso(res);
+            setTimeout(finalizarCarga, 600);
+        });
+
+        peticionXhr.addEventListener('error', function () {
+            peticionXhr = null;
+            mostrarError('No se pudo conectar con el servidor.');
+        });
+
+        peticionXhr.addEventListener('abort', function () {
+            peticionXhr = null;
+        });
+
+        peticionXhr.send(formData);
     }
 
     function verPdfProcesado() {

@@ -846,9 +846,12 @@ Campos devueltos:
 ```text
 fechaHora, quienReporta, aliado, regional, departamento, listaMunicipios,
 municipio, barrio, direccion, puntoReferencia, coordenadas,
-duenoInfraestructura, codigoPacvi, vulnerabilidad, asociarOT, prioridad,
-observaciones
+duenoInfraestructura, codigoPacvi, vulnerabilidadesInfraestructura,
+estadoInfraestructura, vulnerabilidad, asociarOT, prioridad, observaciones
 ```
+
+* `vulnerabilidadesInfraestructura` → etiqueta "VULNERABILIDADES DE INFRAESTRUCTURA".
+* `estadoInfraestructura` → etiqueta "ESTADO DE INFRAESTRUCTURA (TAPA/RECÁMARA)"; el valor es el nivel de deterioro indicado. La instrucción "INDIQUE EL NIVEL DE DETERIORO" se elimina del valor con `limpiarValorEstadoInfraestructura()`.
 
 El emparejamiento compara cada línea normalizada (mayúsculas + sin acentos, reutilizando `normalizar()`) contra el inicio de la etiqueta, tolerando sobras de OCR (p. ej. "CODIGO PACVI S"). Los valores vacíos se devuelven como `""`. El resultado viaja en la clave `hallazgo` de la respuesta.
 
