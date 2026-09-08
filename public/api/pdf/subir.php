@@ -44,11 +44,39 @@ try {
         responderJson(['ok' => false, 'error' => 'No se pudo guardar el archivo.'], 500);
     }
 
+    // El frontend envía un token opcional para escribir el progreso real en
+    // public/api/tmp/progreso_<token>.json (archivo estático que el frontend
+    // puede leer sin crear un endpoint adicional).
+    $token = $_POST['progreso'] ?? '';
+    $progFile = null;
+    if ($token !== '' && preg_match('/^[A-Za-z0-9_\-]+$/', $token)) {
+        $progFile = API_TMP_DIR . '/progreso_' . $token . '.json';
+    }
+
+    $reportar = function (int $pct, string $texto) use ($progFile): void {
+        if ($progFile === null) {
+            return;
+        }
+        $contenido = json_encode(
+            ['pct' => $pct, 'texto' => $texto],
+            JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE
+        );
+        @file_put_contents($progFile, $contenido);
+    };
+
     $proc = new PdfProcessor($destino);
+    $proc->setReportadorProgreso($reportar);
     $resultado = $proc->procesar();
     $resultado['archivo_original'] = $nombreOriginal;
 
+    if ($progFile !== null) {
+        @unlink($progFile);
+    }
+
     responderJson($resultado);
 } catch (Throwable $e) {
+    if (isset($progFile) && $progFile !== null) {
+        @unlink($progFile);
+    }
     responderJson(['ok' => false, 'error' => $e->getMessage()], 500);
 }

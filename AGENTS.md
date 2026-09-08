@@ -808,10 +808,20 @@ pdftotext
       ↓
    pdftoppm -png -r 200
       ↓
-   Tesseract OCR (spa)
+   Tesseract OCR (spa) por página
+      ↓
+   texto base (página completa)
+      ↓
+   Segundo pase: OCR por bandas (r 300, recortes sup 0–50% e inf 50–100%)
+      ↓
+   Completa los campos del hallazgo que el OCR base omitió
       ↓
      texto
 ```
+
+### Pase OCR por bandas (documentos escaneados)
+
+El OCR de página completa omite ciertas secciones del formulario (p. ej. las etiquetas "VULNERABILIDADES DE INFRAESTRUCTURA" y "ESTADO DE INFRAESTRUCTURA", que sí se leen cuando el recorte ocupa la banda). Por eso, en escaneados se ejecuta un segundo pase (`PdfProcessor::ocrPorBandas()`) que renderiza cada página a 300 DPI en dos bandas horizontales sin solape (0–50% y 50–100%) y aplica Tesseract por banda. La extracción de campos sobre ese texto complementario se fusiona con `fusionarHallazgos()`: solo completa los campos que quedaron vacíos en la extracción base, sin reemplazar los valores ya detectados.
 
 Posteriormente:
 

@@ -288,3 +288,98 @@
     border-color: var(--naranja);
     color: var(--naranja-oscuro);
 }
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-md);
+    background-color: rgba(18, 24, 62, 0.55);
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+}
+
+.modal-backdrop[hidden] {
+    display: none;
+}
+
+body.modal-open {
+    overflow: hidden;
+}
+
+.modal {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-lg);
+    background-color: var(--blanco);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: var(--gris-fondo);
+    color: var(--gris-texto);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.modal-close:hover {
+    background-color: var(--gris-borde);
+    color: var(--azul-principal);
+}
+
+.modal-close svg {
+    width: 16px;
+    height: 16px;
+}
+
+.modal-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin-bottom: var(--spacing-sm);
+    border-radius: 50%;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.modal-icon-info {
+    background-color: rgba(245, 154, 35, 0.12);
+    color: var(--naranja);
+    border: 2px solid var(--naranja);
+}
+
+.modal-title {
+    margin-bottom: var(--spacing-xs);
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--azul-principal);
+}
+
+.modal-text {
+    margin-bottom: var(--spacing-lg);
+    font-size: 0.9rem;
+    color: var(--gris-texto);
+}
+
+.modal .btn-block {
+    margin-top: var(--spacing-sm);
+}

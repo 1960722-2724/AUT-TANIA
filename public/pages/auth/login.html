@@ -9,18 +9,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../css/variables.css?v=3">
-    <link rel="stylesheet" href="../../css/base.css?v=3">
-    <link rel="stylesheet" href="../../css/components.css?v=3">
-    <link rel="stylesheet" href="../../css/layout.css?v=3">
-    <link rel="stylesheet" href="../../css/auth.css?v=3">
+    <link rel="stylesheet" href="../../css/variables.css?v=4">
+    <link rel="stylesheet" href="../../css/base.css?v=4">
+    <link rel="stylesheet" href="../../css/components.css?v=4">
+    <link rel="stylesheet" href="../../css/layout.css?v=4">
+    <link rel="stylesheet" href="../../css/auth.css?v=4">
 </head>
 <body>
     <main class="auth-layout">
         <section class="auth-card" aria-label="Iniciar sesión">
             <header class="auth-header">
                 <img src="../../assets/icons/logo.svg" alt="Logo AUTN TANIA" class="auth-logo">
-                <h1 class="auth-title">SISTEMA DE GESTION</h1>
+                <h1 class="auth-title">SISTEMA DE GESTION<span class="auth-title-line">O&amp;M</span></h1>
                 <p class="auth-subtitle">Iniciar sesión</p>
             </header>
 
@@ -28,17 +28,18 @@
                 <div id="login-alert" class="alert" role="alert" hidden></div>
 
                 <div class="form-group">
-                    <label for="correo" class="form-label">Correo electrónico</label>
+                    <label for="cedula" class="form-label">Número de cédula</label>
                     <div class="input-icon">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                            <path d="M22 7l-10 5L2 7"></path>
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
                         </svg>
-                        <input type="email" id="correo" name="correo" class=" form-input"
-                               placeholder="correo@ejemplo.com" autocomplete="email" required>
+                        <input type="text" id="cedula" name="cedula" class="form-input"
+                               placeholder="Ingresa tu número de cédula" autocomplete="off"
+                               inputmode="numeric" maxlength="15" required>
                     </div>
-                    <p id="correo-error" class="form-error" hidden></p>
+                    <p id="cedula-error" class="form-error" hidden></p>
                 </div>
 
                 <div class="form-group">
@@ -53,6 +54,12 @@
                                placeholder="Ingresa tu contraseña" autocomplete="current-password" required>
                     </div>
                     <p id="password-error" class="form-error" hidden></p>
+                    <div class="forgot-row">
+                        <button type="button" class="forgot-btn" id="forgot-password-btn">
+                            <span class="info-badge" aria-hidden="true">!</span>
+                            <span>¿Olvidó su contraseña?</span>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" id="login-btn" class="btn btn-primary btn-block">Iniciar sesión</button>
@@ -60,7 +67,23 @@
         </section>
     </main>
 
-    <script src="../../js/app.js?v=3"></script>
-    <script src="../../js/auth.js?v=3"></script>
+    <div class="modal-backdrop" id="forgot-modal" role="dialog" aria-modal="true"
+         aria-labelledby="forgot-modal-title" hidden>
+        <div class="modal">
+            <button type="button" class="modal-close" id="forgot-modal-close" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6L6 18M6 6l12 12"></path>
+                </svg>
+            </button>
+            <span class="modal-icon modal-icon-info" aria-hidden="true">!</span>
+            <h2 class="modal-title" id="forgot-modal-title">Su clave es la misma que su número de cédula</h2>
+            <p class="modal-text">Ingrese su número de cédula en los campos de cédula y contraseña.</p>
+            <button type="button" class="btn btn-primary btn-block" id="forgot-modal-accept">Entendido</button>
+        </div>
+    </div>
+
+    <script src="../../js/app.js?v=4"></script>
+    <script src="../../js/auth.js?v=4"></script>
 </body>
 </html>

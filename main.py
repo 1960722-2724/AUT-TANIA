@@ -28,9 +28,15 @@ def main():
     if php and puerto_disponible(PORT):
         print(f"Servidor PHP embebido en http://localhost:{PORT}")
         print("Login: http://localhost:8000/pages/auth/login.html")
+        # El servidor embebido de PHP es monohilo por defecto: mientras
+        # subir.php procesa el PDF no podría atender el polling de progreso
+        # (progreso_<token>.json), dejando la barra clavada en 30%.
+        # Con PHP_CLI_SERVER_WORKERS el servidor atiende varias peticiones.
+        env = dict(os.environ)
+        env["PHP_CLI_SERVER_WORKERS"] = "2"
         cmd = [php, "-S", f"0.0.0.0:{PORT}", "-t", PUBLIC_DIR]
         try:
-            subprocess.run(cmd)
+            subprocess.run(cmd, env=env)
         except KeyboardInterrupt:
             sys.exit(0)
         return

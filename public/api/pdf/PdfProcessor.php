@@ -15,6 +15,8 @@ require_once __DIR__ . '/../config.php';
  *   3. pdfimages -list  → inventario de imágenes incrustadas por página (orden de extracción).
  *   4. pdfimages -png   → extrae las imágenes a archivo.
  *   5. pdftoppm + tesseract → OCR por página para documentos escaneados.
+ *   6. pdftoppm (bandas 0–50% y 50–100%, r 300) + tesseract → segundo pase OCR
+ *      por bandas que completa las secciones que el OCR de página completa omitió.
  *
  * La localización de la sección "REGISTRO FOTOGRÁFICO" se hace por texto (extraído
  * con pdftotext o con OCR) determinando la página donde aparece, y la primera imagen
@@ -84,6 +86,12 @@ class PdfProcessor
      */
     private ?bool $escaneadoCache = null;
 
+    /**
+     * Callback opcional que recibe (int $pct, string $texto) para reportar el
+     * progreso real del procesamiento.
+     */
+    private $reportarProgreso = null;
+
     public function __construct(string $pdfPath, ?string $outDir = null)
     {
         if (!is_file($pdfPath)) {
@@ -94,6 +102,26 @@ class PdfProcessor
         $this->outDir = $outDir ?? (API_TMP_DIR . '/' . $this->baseName);
         if (!is_dir($this->outDir)) {
             mkdir($this->outDir, 0777, true);
+        }
+    }
+
+    /**
+     * Registra un callback para reportar el progreso del procesamiento.
+     *
+     * @param callable|null $cb Recibe (int $pct, string $texto).
+     */
+    public function setReportadorProgreso(?callable $cb): void
+    {
+        $this->reportarProgreso = $cb;
+    }
+
+    /**
+     * Invoca el reportador de progreso si está configurado.
+     */
+    private function reportar(int $pct, string $texto): void
+    {
+        if ($this->reportarProgreso !== null) {
+            call_user_func($this->reportarProgreso, $pct, $texto);
         }
     }
 
@@ -209,10 +237,10 @@ class PdfProcessor
 
         $textos = [];
         for ($pagina = 1; $pagina <= $total; $pagina++) {
+            $pctOcr = 35 + (int) round(($pagina / $total) * 45);
+            $this->reportar($pctOcr, 'Aplicando OCR a la página ' . $pagina . ' de ' . $total . '...');
             $prefijo = $this->outDir . '/ocr_p' . $pagina;
-            $imagenReferencia = $prefijo . '-*.png';
 
-            // Renderizar la página a PNG.
             $cmd = escapeshellarg($ppmopp)
                 . ' -png -r ' . $resolucion
                 . ' -f ' . $pagina . ' -l ' . $pagina
@@ -229,7 +257,7 @@ class PdfProcessor
                 proc_close($proc);
             }
 
-            $archivos = glob($imagenReferencia) ?: [];
+            $archivos = glob($prefijo . '-*.png') ?: [];
             if (empty($archivos)) {
                 $textos[] = '';
                 continue;
@@ -258,6 +286,140 @@ class PdfProcessor
         }
 
         return $textos;
+    }
+
+    /**
+     * Pase OCR complementario por bandas horizontales a mayor resolución.
+     *
+     * El OCR de página completa omite ciertas secciones del formulario (por
+     * ejemplo las etiquetas "VULNERABILIDADES DE INFRAESTRUCTURA" y "ESTADO DE
+     * INFRAESTRUCTURA"), pero esas secciones sí se leen al recortar cada banda.
+     *
+     * @return string[]  Texto de cada página.
+     */
+    private function ocrPorBandas(int $total): array
+    {
+        $tess = tesseractBin();
+        if ($tess === null) {
+            throw new RuntimeException('El documento es escaneado y Tesseract OCR no está disponible.');
+        }
+
+        $ppmopp = popplerBin('pdftoppm');
+        $resolucion = 300;
+
+        [$wPts, $hPts] = $this->tamanoPagina();
+        $altoPx = (int) round($hPts * $resolucion / 72);
+        $anchoPx = (int) round($wPts * $resolucion / 72);
+
+        $bandas = [
+            ['sufijo' => 'sup', 'y' => 0, 'h' => (int) round($altoPx * 0.50)],
+            ['sufijo' => 'inf', 'y' => (int) round($altoPx * 0.50), 'h' => (int) round($altoPx * 0.50)],
+        ];
+
+        $textos = [];
+        $pasoTotal = $total * count($bandas);
+        $paso = 0;
+        for ($pagina = 1; $pagina <= $total; $pagina++) {
+            $partes = [];
+            foreach ($bandas as $banda) {
+                $paso++;
+                $this->reportar(
+                    87 + (int) round(($paso / $pasoTotal) * 3),
+                    'Refinando OCR por bandas (' . $pagina . ' de ' . $total . ')...'
+                );
+                $prefijo = $this->outDir . '/ocr_p' . $pagina . '_' . $banda['sufijo'];
+
+                $cmd = escapeshellarg($ppmopp)
+                    . ' -png -r ' . $resolucion
+                    . ' -f ' . $pagina . ' -l ' . $pagina
+                    . ' -x 0 -y ' . (int) $banda['y'] . ' -W ' . $anchoPx . ' -H ' . (int) $banda['h']
+                    . ' ' . escapeshellarg($this->pdfPath)
+                    . ' ' . escapeshellarg($prefijo);
+
+                $descriptors = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+                $proc = proc_open($cmd, $descriptors, $pipes);
+                if (is_resource($proc)) {
+                    stream_get_contents($pipes[1]);
+                    stream_get_contents($pipes[2]);
+                    fclose($pipes[1]);
+                    fclose($pipes[2]);
+                    proc_close($proc);
+                }
+
+                $archivos = glob($prefijo . '-*.png') ?: [];
+                if (empty($archivos)) {
+                    continue;
+                }
+                $png = $archivos[0];
+
+                $cmdOcr = escapeshellarg($tess)
+                    . ' ' . escapeshellarg($png)
+                    . ' stdout -l spa --psm 3';
+
+                $descriptors2 = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+                $proc2 = proc_open($cmdOcr, $descriptors2, $pipes2);
+                if (!is_resource($proc2)) {
+                    continue;
+                }
+                $ocr = stream_get_contents($pipes2[1]);
+                stream_get_contents($pipes2[2]);
+                fclose($pipes2[1]);
+                fclose($pipes2[2]);
+                proc_close($proc2);
+
+                $partes[] = $this->normalizarTexto($ocr);
+            }
+
+            $textos[] = $this->unirBandasOcr($partes);
+        }
+
+        return $textos;
+    }
+
+    /**
+     * Dimensiones de la página en puntos [ancho, alto]. Si pdfinfo no las
+     * reporta, asume carta (612 x 792).
+     *
+     * @return array{0:float,1:float}
+     */
+    private function tamanoPagina(): array
+    {
+        [$out] = $this->run('pdfinfo', [$this->pdfPath]);
+        if (preg_match('/Page size:\s+([\d.]+) x ([\d.]+)\s+pts/i', $out, $m)) {
+            return [(float) $m[1], (float) $m[2]];
+        }
+        return [612.0, 792.0];
+    }
+
+    /**
+     * Une los textos de las bandas OCR eliminando líneas duplicadas
+     * consecutivas y colapsando espacios múltiples.
+     *
+     * @param string[] $partes
+     */
+    private function unirBandasOcr(array $partes): string
+    {
+        $lineas = preg_split('/\r\n|\r|\n/', implode("\n", $partes)) ?: [];
+        $unidas = [];
+        $prev = '';
+        foreach ($lineas as $linea) {
+            $limpia = trim(preg_replace('/[ \t]+/', ' ', $linea));
+            if ($limpia === '') {
+                if (($unidas[count($unidas) - 1] ?? '') !== '') {
+                    $unidas[] = '';
+                }
+                continue;
+            }
+            if ($limpia === $prev) {
+                continue;
+            }
+            $unidas[] = $limpia;
+            $prev = $limpia;
+        }
+        while (($unidas[count($unidas) - 1] ?? '') === '') {
+            array_pop($unidas);
+        }
+        return implode("\n", $unidas);
     }
 
     /**
@@ -575,16 +737,30 @@ class PdfProcessor
     /**
      * Elimina de la respuesta la instrucción del formulario
      * "INDIQUE EL NIVEL DE DETERIORO" dejando solo el nivel marcado.
+     * Si el valor contiene un porcentaje, se devuelve únicamente ese nivel.
      */
     private function limpiarValorEstadoInfraestructura(string $valor): string
     {
+        if (preg_match('/(\d+(?:[.,]\d+)?)\s*%/', $valor, $m)) {
+            return $m[1] . '%';
+        }
+
         $lineas = preg_split('/\r\n|\r|\n/', $valor) ?: [];
         $filtradas = [];
+        $ruido = ['INDIQUE', 'DETERIORO', 'TAPA', 'RECAMARA', 'ESTADO DE INFRAESTRUCTURA'];
         foreach ($lineas as $linea) {
-            if (mb_stripos($linea, 'INDIQUE EL NIVEL DE DETERIORO') !== false) {
-                continue;
+            $limpia = trim($linea);
+            $mayus = $this->normalizar(mb_strtoupper($limpia));
+            $esRuido = false;
+            foreach ($ruido as $palabra) {
+                if ($mayus !== '' && str_contains($mayus, $palabra)) {
+                    $esRuido = true;
+                    break;
+                }
             }
-            $filtradas[] = trim($linea);
+            if (!$esRuido) {
+                $filtradas[] = $limpia;
+            }
         }
         return trim(implode("\n", array_filter($filtradas, function ($l) {
             return $l !== '';
@@ -604,23 +780,66 @@ class PdfProcessor
     }
 
     /**
+     * Combina dos extracciones del hallazgo: completa los campos vacíos de la
+     * extracción base con valores de la extracción complementaria (OCR por bandas).
+     *
+     * @param array<string,string> $base
+     * @param array<string,string> $complemento
+     * @return array<string,string>
+     */
+    private function fusionarHallazgos(array $base, array $complemento): array
+    {
+        foreach ($base as $clave => $valor) {
+            $valorComplemento = $complemento[$clave] ?? '';
+            // Se prefiere el valor más completo: se conserva el del pase base
+            // salvo que el complementario aporte más texto (p. ej. las
+            // observaciones, que el OCR de página completa trunca).
+            if (mb_strlen(trim($valorComplemento)) > mb_strlen(trim($valor))) {
+                $base[$clave] = $valorComplemento;
+            }
+        }
+        return $base;
+    }
+
+    /**
      * Orquesta todo el flujo y devuelve el resultado estructurado.
      */
     public function procesar(): array
     {
+        $this->reportar(30, 'Analizando la capa de texto del PDF...');
         $escaneado = $this->esEscaneado();
 
-        // Texto plano (con OCR si es escaneado).
+        $this->reportar(35, 'Extrayendo texto plano del documento...');
         $texto = $this->extraerTextoPlano();
 
+        if ($escaneado) {
+            $coordenadas = [];
+        } else {
+            $this->reportar(80, 'Extrayendo coordenadas del texto...');
+            $coordenadas = $this->extraerTextoConCoordenadas();
+        }
+
+        $this->reportar(85, 'Extrayendo los campos del formulario de hallazgos...');
         $hallazgo = $this->extraerHallazgo($texto);
 
-        // Coordenadas (solo si hay capa de texto; para escaneados se deja vacío).
-        $coordenadas = $escaneado ? [] : $this->extraerTextoConCoordenadas();
+        // En documentos escaneados el OCR de página completa omite algunas
+        // secciones (etiquetas de infraestructura); se completa con un segundo
+        // pase de OCR por bandas.
+        if ($escaneado) {
+            $this->reportar(87, 'Leyendo secciones que el OCR de página completa omitió...');
+            $hallazgo = $this->fusionarHallazgos($hallazgo, $this->extraerHallazgo($this->ocrPorBandas(count($texto))));
+        }
 
+        $this->reportar(90, 'Localizando el registro fotográfico...');
         $seccion = $this->localizarSeccionRegistro();
+
+        $this->reportar(92, 'Identificando la imagen del registro fotográfico...');
         $imagenOriginal = $this->identificarPrimeraImagenRegistro();
+
+        $this->reportar(94, 'Extrayendo la evidencia fotográfica...');
         $rutaImagen = $this->extraerRegistroFotografico();
+
+        $this->reportar(97, 'Generando los resultados finales...');
 
         // Convierte una ruta absoluta dentro de public/ a una URL relativa servida.
         $urlImagen = null;

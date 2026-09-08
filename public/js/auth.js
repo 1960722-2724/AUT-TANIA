@@ -4,10 +4,15 @@
     var form = document.getElementById('login-form');
     var alertBox = document.getElementById('login-alert');
     var loginBtn = document.getElementById('login-btn');
-    var correoInput = document.getElementById('correo');
+    var cedulaInput = document.getElementById('cedula');
     var passwordInput = document.getElementById('password');
-    var correoError = document.getElementById('correo-error');
+    var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
+
+    var forgotBtn = document.getElementById('forgot-password-btn');
+    var forgotModal = document.getElementById('forgot-modal');
+    var forgotModalClose = document.getElementById('forgot-modal-close');
+    var forgotModalAccept = document.getElementById('forgot-modal-accept');
 
     function mostrarErrorInput(input, errorEl, mensaje) {
         if (!mensaje) {
@@ -33,17 +38,29 @@
         alertBox.className = 'alert';
     }
 
-    function validar(correo, password) {
+    function abrirModal() {
+        forgotModal.hidden = false;
+        document.body.classList.add('modal-open');
+        document.getElementById('forgot-modal-accept').focus();
+    }
+
+    function cerrarModal() {
+        forgotModal.hidden = true;
+        document.body.classList.remove('modal-open');
+        forgotBtn.focus();
+    }
+
+    function validar(cedula, password) {
         var valido = true;
 
-        if (!correo) {
-            mostrarErrorInput(correoInput, correoError, 'El correo es obligatorio.');
+        if (!cedula) {
+            mostrarErrorInput(cedulaInput, cedulaError, 'La cédula es obligatoria.');
             valido = false;
-        } else if (!correo.includes('@')) {
-            mostrarErrorInput(correoInput, correoError, 'Ingresa un correo válido.');
+        } else if (!/^\d+$/.test(cedula)) {
+            mostrarErrorInput(cedulaInput, cedulaError, 'Ingresa una cédula válida (solo números).');
             valido = false;
         } else {
-            mostrarErrorInput(correoInput, correoError, null);
+            mostrarErrorInput(cedulaInput, cedulaError, null);
         }
 
         if (!password) {
@@ -59,13 +76,13 @@
         return valido;
     }
 
-    function login(correo, password) {
+    function login(cedula, password) {
         return new Promise(function (resolve) {
             setTimeout(function () {
                 var sesion = {
                     usuario: {
                         nombre: 'Usuario Demo',
-                        correo: correo,
+                        cedula: cedula,
                         rol: 'USUARIO'
                     },
                     iniciada: new Date().toISOString()
@@ -80,17 +97,17 @@
         evt.preventDefault();
         ocultarAlert();
 
-        var correo = correoInput.value.trim();
+        var cedula = cedulaInput.value.trim();
         var password = passwordInput.value;
 
-        if (!validar(correo, password)) {
+        if (!validar(cedula, password)) {
             return;
         }
 
         loginBtn.disabled = true;
         loginBtn.textContent = 'Ingresando...';
 
-        login(correo, password).then(function () {
+        login(cedula, password).then(function () {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Iniciar sesión';
             mostrarAlert('success', 'Sesión iniciada correctamente.');
@@ -103,15 +120,29 @@
 
     form.addEventListener('submit', manejarEnvio);
 
-    correoInput.addEventListener('input', function () {
-        if (correoInput.value) {
-            mostrarErrorInput(correoInput, correoError, null);
+    cedulaInput.addEventListener('input', function () {
+        if (cedulaInput.value) {
+            mostrarErrorInput(cedulaInput, cedulaError, null);
         }
     });
 
     passwordInput.addEventListener('input', function () {
         if (passwordInput.value) {
             mostrarErrorInput(passwordInput, passwordError, null);
+        }
+    });
+
+    forgotBtn.addEventListener('click', abrirModal);
+    forgotModalClose.addEventListener('click', cerrarModal);
+    forgotModalAccept.addEventListener('click', cerrarModal);
+    forgotModal.addEventListener('click', function (evt) {
+        if (evt.target === forgotModal) {
+            cerrarModal();
+        }
+    });
+    document.addEventListener('keydown', function (evt) {
+        if (evt.key === 'Escape' && !forgotModal.hidden) {
+            cerrarModal();
         }
     });
 })();
