@@ -87,6 +87,22 @@ class PdfProcessor
     private ?bool $escaneadoCache = null;
 
     /**
+     * Texto bruto obtenido por esEscaneado() (pdftotext), reutilizado por
+     * extraerTextoPlano() para no ejecutar pdftotext dos veces.
+     */
+    private ?string $textoBrutoCache = null;
+
+    /**
+     * Resultados cacheados de operaciones costosas (pdftotext/bbox, OCR,
+     * pdfimages). El pipeline consulta estas operaciones varias veces
+     * (localizarSeccionRegistro, identificarPrimeraImagenRegistro,
+     * extraerRegistroFotografico); con caché cada una se ejecuta una sola vez.
+     */
+    private ?array $textoPlanoCache = null;
+    private ?array $coordenadasCache = null;
+    private ?array $imagenesCache = null;
+
+    /**
      * Callback opcional que recibe (int $pct, string $texto) para reportar el
      * progreso real del procesamiento.
      */
@@ -185,6 +201,7 @@ class PdfProcessor
         } catch (Throwable $e) {
             $textoBruto = '';
         }
+        $this->textoBrutoCache = $textoBruto;
 
         $this->escaneadoCache = (strlen($textoBruto) < 20);
         return $this->escaneadoCache;
@@ -199,25 +216,29 @@ class PdfProcessor
      */
     public function extraerTextoPlano(): array
     {
+        if ($this->textoPlanoCache !== null) {
+            return $this->textoPlanoCache;
+        }
+
         $total = $this->numeroPaginas();
 
         if ($this->esEscaneado()) {
-            return $this->ocrPorPaginas($total);
+            return $this->textoPlanoCache = $this->ocrPorPaginas($total);
         }
 
-        [$out] = $this->run('pdftotext', [$this->pdfPath, '-']);
-        $out = $this->normalizarTexto($out);
+        if ($this->textoBrutoCache === null) {
+            [$out] = $this->run('pdftotext', [$this->pdfPath, '-']);
+            $this->textoBrutoCache = trim($out);
+        }
+        $out = $this->normalizarTexto($this->textoBrutoCache);
         $paginas = preg_split('/\f/', $out);
-        $paginas = array_values(array_filter($paginas, function ($p) {
-            return trim($p) !== '' || true;
-        }));
 
         // Normalizar a $total páginas.
         $resultado = [];
         for ($i = 0; $i < $total; $i++) {
             $resultado[] = isset($paginas[$i]) ? trim($paginas[$i]) : '';
         }
-        return $resultado;
+        return $this->textoPlanoCache = $resultado;
     }
 
     /**
@@ -429,13 +450,17 @@ class PdfProcessor
      */
     public function extraerTextoConCoordenadas(): array
     {
+        if ($this->coordenadasCache !== null) {
+            return $this->coordenadasCache;
+        }
+
         [$xml, $code] = $this->run('pdftotext', ['-bbox', $this->pdfPath, '-']);
         if ($code !== 0) {
             throw new RuntimeException('Fallo pdftotext (bbox).');
         }
 
         if (!preg_match_all('/<page width="([\d.]+)" height="([\d.]+)">(.*?)<\/page>/s', $xml, $pags, PREG_SET_ORDER)) {
-            return [];
+            return $this->coordenadasCache = [];
         }
 
         $paginas = [];
@@ -465,7 +490,7 @@ class PdfProcessor
             ];
         }
 
-        return $paginas;
+        return $this->coordenadasCache = $paginas;
     }
 
     /**
@@ -475,6 +500,10 @@ class PdfProcessor
      */
     public function listarImagenes(): array
     {
+        if ($this->imagenesCache !== null) {
+            return $this->imagenesCache;
+        }
+
         [$out, $code] = $this->run('pdfimages', ['-list', $this->pdfPath]);
         if ($code !== 0) {
             throw new RuntimeException('Fallo pdfimages -list.');
@@ -506,7 +535,7 @@ class PdfProcessor
             ];
         }
 
-        return $imagenes;
+        return $this->imagenesCache = $imagenes;
     }
 
     /**
@@ -802,6 +831,22 @@ class PdfProcessor
     }
 
     /**
+     * Indica si la extracción base dejó campos vacíos. El pase OCR por bandas
+     * solo aporta cuando hay campos sin valor (etiquetas que el OCR de página
+     * completa no leyó); si todos los campos tienen valor, omitirlo no cambia
+     * el resultado y ahorra el paso más costoso en documentos escaneados.
+     */
+    private function hallazgoIncompleto(array $hallazgo): bool
+    {
+        foreach ($hallazgo as $valor) {
+            if (is_string($valor) && trim($valor) === '') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Orquesta todo el flujo y devuelve el resultado estructurado.
      */
     public function procesar(): array
@@ -824,8 +869,11 @@ class PdfProcessor
 
         // En documentos escaneados el OCR de página completa omite algunas
         // secciones (etiquetas de infraestructura); se completa con un segundo
-        // pase de OCR por bandas.
-        if ($escaneado) {
+        // pase de OCR por bandas. Como fusionarHallazgos() solo rellena campos
+        // vacíos, el pase por bandas se omite si la extracción base ya cubrió
+        // todos los campos: correrlo no cambiaría el resultado y ahorra el OCR
+        // más costoso del pipeline.
+        if ($escaneado && $this->hallazgoIncompleto($hallazgo)) {
             $this->reportar(87, 'Leyendo secciones que el OCR de página completa omitió...');
             $hallazgo = $this->fusionarHallazgos($hallazgo, $this->extraerHallazgo($this->ocrPorBandas(count($texto))));
         }

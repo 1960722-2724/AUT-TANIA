@@ -94,7 +94,7 @@
 
             <div id="hallazgo-body" hidden>
                 <header class="hallazgo-hero">
-                    <div class="hallazgo-hero-text">
+                    <div>
                         <p class="hallazgo-kicker">Procesamiento / Hallazgo</p>
                         <h2 class="hallazgo-title">Hallazgo detectado</h2>
                         <p class="hallazgo-desc">Información extraída automáticamente del documento procesado.</p>
@@ -105,7 +105,7 @@
                     </div>
                 </header>
 
-                <section class="page-card" id="resumen-card">
+                <section class="page-card">
                     <div class="card-body">
                         <dl class="summary-grid">
                             <div class="summary-block">
@@ -128,7 +128,7 @@
                     </div>
                 </section>
 
-                <section class="page-card" id="identificacion-card">
+                <section class="page-card">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Identificación</h2>
                         <p class="page-card-subtitle">Quién reporta y dónde administrativamente ocurrió el hallazgo.</p>
@@ -138,7 +138,7 @@
                     </div>
                 </section>
 
-                <section class="page-card" id="ubicacion-card">
+                <section class="page-card">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Ubicación</h2>
                         <p class="page-card-subtitle">Lugar exacto reportado del hallazgo.</p>
@@ -148,7 +148,7 @@
                     </div>
                 </section>
 
-                <section class="page-card" id="infraestructura-card">
+                <section class="page-card">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Infraestructura</h2>
                         <p class="page-card-subtitle">Equipamiento involucrado, vulnerabilidades, estado de deterioro y prioridad.</p>
@@ -158,7 +158,7 @@
                     </div>
                 </section>
 
-                <section class="page-card" id="observaciones-card">
+                <section class="page-card">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Observaciones</h2>
                         <p class="page-card-subtitle">Detalles adicionales registrados en el documento.</p>
@@ -168,7 +168,7 @@
                     </div>
                 </section>
 
-                <section class="page-card" id="evidencia-card">
+                <section class="page-card">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Evidencia fotográfica</h2>
                         <p class="page-card-subtitle">Primera imagen identificada en la sección REGISTRO FOTOGRÁFICO.</p>
@@ -182,9 +182,19 @@
                 </section>
 
                 <div class="hallazgo-actions">
-                    <a href="../../dashboard/dashboard.html" class="link hallazgo-volver">Volver al Dashboard</a>
-                    <button type="button" id="btn-continuar" class="btn btn-primary btn-block">
-                        Continuar al siguiente paso
+                    <a href="../../dashboard/dashboard.html" class="cta cta-white">
+                        <span class="span">Volver al Dashboard</span>
+                        <svg class="second" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line class="one" x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline class="two" points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </a>
+                    <button type="button" id="btn-continuar" class="cta">
+                        <span class="span">Continuar al siguiente paso</span>
+                        <svg class="second" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line class="one" x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline class="two" points="12 5 19 12 12 19"></polyline>
+                        </svg>
                     </button>
                 </div>
             </div>

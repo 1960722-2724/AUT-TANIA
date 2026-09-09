@@ -131,9 +131,47 @@
                         </div>
 
                         <div class="form-group field-full">
-                            <label for="link-rf" class="form-label">Link RF Finalizado Vulnerabilidad</label>
-                            <input type="text" id="link-rf" class="form-input" placeholder="https://...">
-                            <p id="link-error" class="form-error" hidden></p>
+                            <label class="form-label">Evidencia fotográfica *</label>
+                            <div class="photo-upload" id="photo-upload">
+                                <div class="photo-upload-empty" id="photo-empty">
+                                    <div class="photo-upload-area">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                            <circle cx="12" cy="13" r="4"></circle>
+                                        </svg>
+                                        <p>Agrega una foto de evidencia</p>
+                                    </div>
+                                    <div class="photo-actions">
+                                        <button type="button" class="btn btn-secondary" id="btn-tomar-foto">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                                                <circle cx="12" cy="13" r="4"></circle>
+                                            </svg>
+                                            Tomar foto
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" id="btn-subir-foto">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                <polyline points="17 8 12 3 7 8"></polyline>
+                                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                            </svg>
+                                            Subir foto
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="photo-preview" id="photo-preview" hidden>
+                                    <img id="photo-preview-img" src="" alt="Vista previa de la evidencia">
+                                    <button type="button" class="photo-remove" id="btn-eliminar-foto" aria-label="Eliminar foto">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="file" id="input-camera" accept="image/*" capture="environment" hidden>
+                            <input type="file" id="input-file" accept="image/*" hidden>
+                            <p id="foto-error" class="form-error" hidden></p>
                         </div>
 
                         <div class="form-group field-full">

@@ -27,12 +27,6 @@
         getEl('user-avatar').textContent = iniciales(nombre);
     }
 
-    function escapar(texto) {
-        var div = document.createElement('div');
-        div.textContent = texto;
-        return div.innerHTML;
-    }
-
     function mostrarAlert(tipo, mensaje) {
         alertBox.className = 'alert alert-' + tipo;
         alertBox.textContent = mensaje;

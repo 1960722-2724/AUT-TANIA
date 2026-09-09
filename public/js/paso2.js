@@ -5,12 +5,23 @@
     var alertBox = document.getElementById('paso2-alert');
     var submitBtn = document.getElementById('paso2-btn');
 
+    var photoEmpty = document.getElementById('photo-empty');
+    var photoPreview = document.getElementById('photo-preview');
+    var photoPreviewImg = document.getElementById('photo-preview-img');
+    var btnTomarFoto = document.getElementById('btn-tomar-foto');
+    var btnSubirFoto = document.getElementById('btn-subir-foto');
+    var btnEliminarFoto = document.getElementById('btn-eliminar-foto');
+    var inputCamera = document.getElementById('input-camera');
+    var inputFile = document.getElementById('input-file');
+    var fotoError = document.getElementById('foto-error');
+
+    var archivoFoto = null;
+
     var campos = [
         { input: document.getElementById('supervisor'), error: document.getElementById('supervisor-error'), label: 'Supervisor', requerido: true },
         { input: document.getElementById('wo'), error: document.getElementById('wo-error'), label: 'WO Vulnerabilidad', requerido: true },
         { input: document.getElementById('tecnico'), error: document.getElementById('tecnico-error'), label: 'Técnico Móvil', requerido: true },
-        { input: document.getElementById('estado'), error: document.getElementById('estado-error'), label: 'Estado V', requerido: true },
-        { input: document.getElementById('link-rf'), error: document.getElementById('link-error'), label: 'Link RF Finalizado Vulnerabilidad', requerido: false }
+        { input: document.getElementById('estado'), error: document.getElementById('estado-error'), label: 'Estado V', requerido: true }
     ];
 
     function getEl(id) {
@@ -36,6 +47,16 @@
         campo.error.textContent = '';
     }
 
+    function mostrarErrorFoto(mensaje) {
+        fotoError.textContent = mensaje;
+        fotoError.hidden = false;
+    }
+
+    function limpiarErrorFoto() {
+        fotoError.hidden = true;
+        fotoError.textContent = '';
+    }
+
     function validar() {
         var valido = true;
 
@@ -52,6 +73,13 @@
             }
         });
 
+        if (!archivoFoto) {
+            mostrarErrorFoto('La evidencia fotográfica es obligatoria.');
+            valido = false;
+        } else {
+            limpiarErrorFoto();
+        }
+
         return valido;
     }
 
@@ -67,6 +95,38 @@
         alertBox.className = 'alert';
     }
 
+    function manejarFoto(archivo) {
+        if (!archivo) {
+            return;
+        }
+
+        if (!archivo.type.startsWith('image/')) {
+            mostrarErrorFoto('Solo se permiten archivos de imagen.');
+            return;
+        }
+
+        limpiarErrorFoto();
+        archivoFoto = archivo;
+
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            photoPreviewImg.src = e.target.result;
+            photoEmpty.hidden = true;
+            photoPreview.hidden = false;
+        };
+        reader.readAsDataURL(archivo);
+    }
+
+    function eliminarFoto() {
+        archivoFoto = null;
+        photoPreviewImg.src = '';
+        photoPreview.hidden = true;
+        photoEmpty.hidden = false;
+        inputCamera.value = '';
+        inputFile.value = '';
+        limpiarErrorFoto();
+    }
+
     function guardar() {
         return new Promise(function (resolve) {
             setTimeout(function () {
@@ -75,8 +135,8 @@
                     wo: getEl('wo').value.trim(),
                     tecnico: getEl('tecnico').value.trim(),
                     observaciones: getEl('observaciones').value.trim(),
-                    linkRf: getEl('link-rf').value.trim(),
-                    estadoV: getEl('estado').value
+                    estadoV: getEl('estado').value,
+                    foto: archivoFoto
                 };
                 resolve(datos);
             }, 400);
@@ -124,6 +184,24 @@
         App.cerrarSesion();
         window.location.href = '../../auth/login.html';
     }
+
+    btnTomarFoto.addEventListener('click', function () {
+        inputCamera.click();
+    });
+
+    btnSubirFoto.addEventListener('click', function () {
+        inputFile.click();
+    });
+
+    inputCamera.addEventListener('change', function () {
+        manejarFoto(inputCamera.files[0]);
+    });
+
+    inputFile.addEventListener('change', function () {
+        manejarFoto(inputFile.files[0]);
+    });
+
+    btnEliminarFoto.addEventListener('click', eliminarFoto);
 
     form.addEventListener('submit', manejarEnvio);
 

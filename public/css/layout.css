@@ -79,12 +79,6 @@
     box-shadow: 0 6px 14px rgba(21, 30, 61, 0.25);
 }
 
-.brand-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-}
-
 .brand-kicker {
     display: block;
     font-size: 0.78rem;
@@ -299,11 +293,6 @@
 
 .btn-icon {
     white-space: nowrap;
-}
-
-.btn-svg {
-    width: 18px;
-    height: 18px;
 }
 
 .content {

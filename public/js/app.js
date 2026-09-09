@@ -32,10 +32,6 @@
         return raw ? JSON.parse(raw) : null;
     }
 
-    function limpiarProceso() {
-        sessionStorage.removeItem(PROCESO_KEY);
-    }
-
     function abrirSidebar() {
         document.body.classList.add('sidebar-open');
     }
@@ -94,7 +90,6 @@
         cerrarSesion: cerrarSesion,
         guardarProceso: guardarProceso,
         obtenerProceso: obtenerProceso,
-        limpiarProceso: limpiarProceso,
         iniciarLayout: iniciarLayout
     };
 
