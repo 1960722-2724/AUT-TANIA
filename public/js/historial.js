@@ -129,6 +129,7 @@
         titulo.innerHTML = '<span class="dot"></span> Fase 1 · PDF';
 
         var contenido = document.createElement('div');
+        contenido.className = 'orden-datos';
         contenido.appendChild(crearDato('Técnico (reporta)', valorHallazgo(proceso, 'quienReporta'), true));
         contenido.appendChild(crearDato('Vulnerabilidad', valorHallazgo(proceso, 'vulnerabilidadesInfraestructura'), true));
         contenido.appendChild(crearDato('Municipio', valorHallazgo(proceso, 'municipio'), true));
@@ -149,6 +150,7 @@
         titulo.innerHTML = '<span class="dot"></span> Fase 2 · Móvil';
 
         var contenido = document.createElement('div');
+        contenido.className = 'orden-datos';
         contenido.appendChild(crearDato('Técnico que resuelve', f2.tecnico, true));
         contenido.appendChild(crearDato('Supervisor', f2.supervisor, true));
         contenido.appendChild(crearDato('WO', f2.wo, true));
@@ -213,7 +215,7 @@
         header.appendChild(badges);
 
         var fases = document.createElement('div');
-        fases.className = 'orden-fases';
+        fases.className = 'orden-fases' + (pendiente ? ' una-fase' : '');
         fases.appendChild(crearFase1(proceso));
         if (proceso.fase2) {
             fases.appendChild(crearFase2(proceso));
