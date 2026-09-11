@@ -165,27 +165,28 @@
     box-shadow: 10px 10px 0 var(--naranja);
 }
 
-.cta-guardar .second {
+.hallazgo-actions .cta-guardar .second {
     margin-left: 26px;
 }
 
-.cta-guardar .one,
-.cta-guardar .two {
+.hallazgo-actions .cta-guardar .one,
+.hallazgo-actions .cta-guardar .two {
     transform: none;
+    transition: none;
 }
 
-.cta-guardar:hover .one,
-.cta-guardar:hover .two {
+.hallazgo-actions .cta-guardar:hover .second {
+    margin-left: 26px;
+}
+
+.hallazgo-actions .cta-guardar:hover .one {
     transform: none;
     animation: color_anim 1s infinite 0.6s;
 }
 
-.cta-guardar .one {
-    animation-delay: 0.6s;
-}
-
-.cta-guardar .two {
-    animation-delay: 0.4s;
+.hallazgo-actions .cta-guardar:hover .two {
+    transform: none;
+    animation: color_anim 1s infinite 0.4s;
 }
 
 .cta {
