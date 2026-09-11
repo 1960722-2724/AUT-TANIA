@@ -171,6 +171,214 @@
         }
     }
 
+    var usuariosMoviles = [];
+    var usuarioSeleccionado = null;
+
+    var assignCard = document.getElementById('assign-card');
+    var assignInput = document.getElementById('asignar-usuario');
+    var assignSugerencias = document.getElementById('assign-sugerencias');
+    var assignVacio = document.getElementById('assign-vacio');
+    var assignSeleccion = document.getElementById('assign-seleccion');
+    var assignAvatar = document.getElementById('assign-avatar');
+    var assignNombre = document.getElementById('assign-nombre');
+    var assignCedula = document.getElementById('assign-cedula');
+    var btnQuitar = document.getElementById('btn-quitar-asignacion');
+    var asignarError = document.getElementById('asignar-error');
+
+    function normalizar(texto) {
+        return String(texto || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function levenshtein(a, b) {
+        var m = a.length;
+        var n = b.length;
+        if (m === 0) { return n; }
+        if (n === 0) { return m; }
+        var fila = [];
+        var i, j, costo, diag, viejo;
+        for (j = 0; j <= n; j++) { fila[j] = j; }
+        for (i = 1; i <= m; i++) {
+            diag = fila[0];
+            fila[0] = i;
+            for (j = 1; j <= n; j++) {
+                viejo = fila[j];
+                costo = a[i - 1] === b[j - 1] ? 0 : 1;
+                fila[j] = Math.min(fila[j] + 1, fila[j - 1] + 1, diag + costo);
+                diag = viejo;
+            }
+        }
+        return fila[n];
+    }
+
+    function puntuar(consulta, texto) {
+        if (!consulta) { return 0; }
+        var normC = normalizar(consulta);
+        var normT = normalizar(texto);
+        var tokens = normT.split(' ');
+        var score = 0;
+
+        for (var i = 0; i < tokens.length; i++) {
+            if (tokens[i] === normC || tokens[i] === normC.charAt(0)) {
+                score = Math.max(score, 0.95);
+            }
+            if (tokens[i].indexOf(normC) === 0) {
+                score = Math.max(score, 0.85 + 0.1 * (normC.length / tokens[i].length));
+            }
+            if (normT.indexOf(normC) === 0) {
+                score = Math.max(score, 0.9);
+            }
+        }
+
+        var dist = levenshtein(normalizar(normT), normalizar(normC));
+        var maxLen = Math.max(normalizar(normT).length, normalizar(normC).length);
+        var levScore = maxLen > 0 ? 1 - dist / maxLen : 0;
+        score = Math.max(score, levScore);
+
+        return score;
+    }
+
+    function buscarUsuarios(consulta) {
+        if (!consulta || !consulta.trim()) {
+            return [];
+        }
+
+        var resultados = [];
+        usuariosMoviles.forEach(function (u) {
+            var scoreNombre = puntuar(consulta, u.nombre);
+            var scoreCedula = puntuar(consulta, u.cedula);
+            var score = Math.max(scoreNombre, scoreCedula);
+            if (score >= 0.4) {
+                resultados.push({ usuario: u, score: score });
+            }
+        });
+
+        resultados.sort(function (a, b) { return b.score - a.score; });
+        return resultados.slice(0, 5).map(function (r) { return r.usuario; });
+    }
+
+    function escaparHtml(texto) {
+        var div = document.createElement('div');
+        div.textContent = texto;
+        return div.innerHTML;
+    }
+
+    function inicialesShort(nombre) {
+        if (!nombre) { return '?'; }
+        return nombre.trim().split(/\s+/).map(function (p) {
+            return p.charAt(0);
+        }).slice(0, 2).join('').toUpperCase();
+    }
+
+    function renderSugerencias(lista) {
+        assignSugerencias.innerHTML = '';
+
+        if (lista.length === 0) {
+            assignSugerencias.hidden = true;
+            assignVacio.hidden = false;
+            return;
+        }
+
+        assignVacio.hidden = true;
+        assignSugerencias.hidden = false;
+
+        lista.forEach(function (u) {
+            var li = document.createElement('li');
+            li.className = 'assign-item';
+            li.setAttribute('data-id', u.id);
+            li.innerHTML =
+                '<span class="assign-item-avatar">' + inicialesShort(u.nombre) + '</span>' +
+                '<div class="assign-item-meta">' +
+                    '<span class="assign-item-nombre">' + escaparHtml(u.nombre) + '</span>' +
+                    '<span class="assign-item-cedula">' + escaparHtml(u.cedula) + '</span>' +
+                '</div>';
+            li.addEventListener('click', function () {
+                seleccionarUsuario(u);
+            });
+            assignSugerencias.appendChild(li);
+        });
+    }
+
+    function seleccionarUsuario(u, proceso) {
+        usuarioSeleccionado = u;
+        assignInput.value = '';
+        assignSugerencias.hidden = true;
+        assignVacio.hidden = true;
+        assignSeleccion.hidden = false;
+        assignNombre.textContent = u.nombre;
+        assignCedula.textContent = 'C.C. ' + u.cedula;
+        assignAvatar.textContent = inicialesShort(u.nombre);
+        asignarError.hidden = true;
+        persistirAsignacion(proceso, u);
+    }
+
+    function quitarSeleccion(proceso) {
+        usuarioSeleccionado = null;
+        assignSeleccion.hidden = true;
+        assignInput.value = '';
+        persistirAsignacion(proceso, null);
+    }
+
+    function persistirAsignacion(proceso, usuario) {
+        if (!proceso) { return; }
+        if (usuario) {
+            proceso.asignado_a = { id: usuario.id, nombre: usuario.nombre, cedula: usuario.cedula };
+        } else {
+            delete proceso.asignado_a;
+        }
+        App.actualizarProceso(proceso);
+    }
+
+    function cargarAsignacion(proceso) {
+        if (!proceso || !proceso.asignado_a) { return; }
+        var u = proceso.asignado_a;
+        seleccionarUsuario(u, proceso);
+    }
+
+    function inicializarAsignacion(proceso) {
+        App.obtenerUsuariosMoviles().then(function (lista) {
+            usuariosMoviles = lista;
+        });
+
+        if (proceso && proceso.asignado_a) {
+            cargarAsignacion(proceso);
+        }
+
+        assignInput.addEventListener('input', function () {
+            var consulta = assignInput.value.trim();
+            if (!consulta) {
+                assignSugerencias.hidden = true;
+                assignVacio.hidden = true;
+                return;
+            }
+            var resultados = buscarUsuarios(consulta);
+            renderSugerencias(resultados);
+        });
+
+        assignInput.addEventListener('focus', function () {
+            var consulta = assignInput.value.trim();
+            if (consulta) {
+                var resultados = buscarUsuarios(consulta);
+                renderSugerencias(resultados);
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('#assign-card')) {
+                assignSugerencias.hidden = true;
+                assignVacio.hidden = true;
+            }
+        });
+
+        btnQuitar.addEventListener('click', function () {
+            quitarSeleccion(proceso);
+        });
+    }
+
     function inicializar() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
@@ -187,6 +395,11 @@
         var destino;
         var textoBtn;
         var span;
+
+        if (esAdmin && assignCard) {
+            assignCard.hidden = false;
+            inicializarAsignacion(proceso);
+        }
 
         if (id) {
             destino = esAdmin ? '../paso1/paso1.html?id=' + id : '../paso2/paso2.html?id=' + id;

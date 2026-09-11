@@ -6,7 +6,21 @@
     var HISTORIAL_KEY = 'autn_procesos';
 
     var mockData = {
-        usuarios: [],
+        usuarios: [
+            { id: 1, nombre: 'Carlos Mendoza', cedula: '103245678', rol: 'USUARIO' },
+            { id: 2, nombre: 'Luisa Fernanda Rojas', cedula: '112224578', rol: 'USUARIO' },
+            { id: 3, nombre: 'Andrés Gutiérrez', cedula: '102448913', rol: 'USUARIO' },
+            { id: 4, nombre: 'María Camila Torres', cedula: '100245698', rol: 'USUARIO' },
+            { id: 5, nombre: 'Jorge Luis Ramírez', cedula: '79845621', rol: 'USUARIO' },
+            { id: 6, nombre: 'Ana Sofía Herrera', cedula: '104562387', rol: 'USUARIO' },
+            { id: 7, nombre: 'Pedro Antonio Castillo', cedula: '103546892', rol: 'USUARIO' },
+            { id: 8, nombre: 'Valentina Gómez', cedula: '105467891', rol: 'USUARIO' },
+            { id: 9, nombre: 'Diego Alejandro Vega', cedula: '100789456', rol: 'USUARIO' },
+            { id: 10, nombre: 'Sara Isabel Morales', cedula: '110245789', rol: 'USUARIO' },
+            { id: 11, nombre: 'Felipe Rincón', cedula: '79856123', rol: 'USUARIO' },
+            { id: 12, nombre: 'Paula Andrea Salazar', cedula: '103098745', rol: 'USUARIO' },
+            { id: 13, nombre: 'Eduardo Pérez', cedula: '98456123', rol: 'ADMIN' }
+        ],
         procesos: [],
         resultadoPDF: {}
     };
@@ -101,6 +115,41 @@
             }
         }
         return null;
+    }
+
+    function actualizarProceso(proceso) {
+        if (!proceso || !proceso.id) {
+            return proceso;
+        }
+
+        var historial = obtenerHistorial();
+        for (var i = 0; i < historial.length; i++) {
+            if (historial[i].id === proceso.id) {
+                historial[i] = proceso;
+                break;
+            }
+        }
+        localStorage.setItem(HISTORIAL_KEY, JSON.stringify(historial));
+
+        var actual = obtenerProceso();
+        if (actual && actual.id === proceso.id) {
+            sessionStorage.setItem(PROCESO_KEY, JSON.stringify(proceso));
+        }
+
+        return proceso;
+    }
+
+    function obtenerUsuariosMoviles() {
+        return new Promise(function (resolve) {
+            setTimeout(function () {
+                var lista = mockData.usuarios.filter(function (u) {
+                    return u.rol === 'USUARIO';
+                });
+                resolve(lista.map(function (u) {
+                    return { id: u.id, nombre: u.nombre, cedula: u.cedula, rol: u.rol };
+                }));
+            }, 200);
+        });
     }
 
     function eliminarProceso(id) {
@@ -252,6 +301,8 @@
         guardarEnHistorial: guardarEnHistorial,
         obtenerHistorial: obtenerHistorial,
         obtenerProcesoPorId: obtenerProcesoPorId,
+        actualizarProceso: actualizarProceso,
+        obtenerUsuariosMoviles: obtenerUsuariosMoviles,
         eliminarProceso: eliminarProceso,
         iniciarLayout: iniciarLayout
     };

@@ -161,6 +161,48 @@
                     </div>
                 </section>
 
+                <section class="page-card" id="assign-card" hidden>
+                    <header class="page-card-header">
+                        <h2 class="page-card-title">Asignación de la orden</h2>
+                        <p class="page-card-subtitle">Asigna esta orden a un usuario móvil para su gestión en campo.</p>
+                    </header>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="asignar-usuario" class="form-label">Usuario móvil asignado</label>
+                            <div class="input-icon">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                <input type="text" id="asignar-usuario" class="form-input"
+                                       placeholder="Buscar por nombre o cédula..." autocomplete="off">
+                            </div>
+                            <p id="asignar-error" class="form-error" hidden></p>
+                        </div>
+
+                        <ul class="assign-sugerencias" id="assign-sugerencias" hidden></ul>
+                        <p class="empty-text assign-vacio" id="assign-vacio" hidden>No se encontraron usuarios móviles.</p>
+
+                        <div class="assign-seleccion" id="assign-seleccion" hidden>
+                            <span class="assign-avatar" id="assign-avatar" aria-hidden="true"></span>
+                            <div class="assign-meta">
+                                <p class="assign-nombre" id="assign-nombre"></p>
+                                <p class="assign-cedula" id="assign-cedula"></p>
+                            </div>
+                            <button type="button" class="btn-quitar" id="btn-quitar-asignacion"
+                                    aria-label="Quitar asignación">
+                                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Quitar
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
                 <div class="hallazgo-actions">
                     <a href="../../dashboard/dashboard.html" class="cta cta-white">
                         <span class="span">Volver al Dashboard</span>

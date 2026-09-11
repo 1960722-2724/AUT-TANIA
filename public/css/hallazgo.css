@@ -278,6 +278,138 @@
     100% { stroke: var(--azul-principal); }
 }
 
+.assign-sugerencias {
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    border: 1px solid var(--gris-borde);
+    border-radius: var(--radius-md);
+    background-color: var(--blanco);
+    box-shadow: var(--shadow-md);
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.assign-sugerencias[hidden] {
+    display: none;
+}
+
+.assign-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.assign-item:hover {
+    background-color: rgba(46, 59, 146, 0.06);
+}
+
+.assign-item-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--azul-principal);
+    color: var(--blanco);
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.assign-item-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.assign-item-nombre {
+    font-weight: 600;
+    color: var(--azul-principal);
+}
+
+.assign-item-cedula {
+    font-size: 0.8rem;
+    color: var(--gris-texto);
+}
+
+.assign-vacio {
+    padding: var(--spacing-sm) 0;
+}
+
+.assign-seleccion {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    margin-top: var(--spacing-sm);
+    border: 1px solid var(--azul-borde);
+    border-radius: var(--radius-md);
+    background-color: rgba(46, 59, 146, 0.05);
+}
+
+.assign-seleccion[hidden] {
+    display: none;
+}
+
+.assign-avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background-color: var(--azul-principal);
+    color: var(--blanco);
+    font-weight: 700;
+}
+
+.assign-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.assign-nombre {
+    font-weight: 600;
+    color: var(--azul-principal);
+}
+
+.assign-cedula {
+    font-size: 0.82rem;
+    color: var(--gris-texto);
+}
+
+.btn-quitar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--naranja-oscuro);
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.18s ease;
+}
+
+.btn-quitar:hover {
+    background-color: rgba(245, 154, 35, 0.12);
+}
+
+.btn-quitar svg {
+    width: 15px;
+    height: 15px;
+}
+
 @media (max-width: 600px) {
     .hallazgo-hero {
         flex-direction: column;
