@@ -4,6 +4,11 @@
     var alertBox = document.getElementById('hallazgo-alert');
     var body = document.getElementById('hallazgo-body');
     var contBtn = document.getElementById('btn-continuar');
+    var btnGuardar = document.getElementById('btn-guardar');
+    var btnVolver = document.getElementById('btn-volver');
+    var guardarModal = document.getElementById('guardar-modal');
+    var btnGuardarClose = document.getElementById('btn-guardar-close');
+    var btnIrHistorial = document.getElementById('btn-ir-historial');
 
     var secciones = [
         {
@@ -379,6 +384,61 @@
         });
     }
 
+    function abrirModalGuardar() {
+        guardarModal.hidden = false;
+        document.body.classList.add('modal-open');
+    }
+
+    function cerrarModalGuardar() {
+        guardarModal.hidden = true;
+        document.body.classList.remove('modal-open');
+    }
+
+    function guardarOrden(proceso) {
+        if (proceso && proceso.id) {
+            App.actualizarProceso(proceso);
+        }
+        return Promise.resolve();
+    }
+
+    function configurarAcciones(proceso, esAdmin, id) {
+        var destinoPaso2 = id ? '../paso2/paso2.html?id=' + id : '../paso2/paso2.html';
+
+        if (esAdmin) {
+            var volverSpan = btnVolver.querySelector('.span');
+            if (volverSpan) {
+                volverSpan.textContent = id ? 'Volver al historial' : 'Cargar nuevo PDF';
+            }
+            if (id) {
+                btnVolver.href = '../../historial/historial.html';
+            }
+
+            btnGuardar.addEventListener('click', function () {
+                btnGuardar.disabled = true;
+                guardarOrden(proceso).then(function () {
+                    btnGuardar.disabled = false;
+                    abrirModalGuardar();
+                });
+            });
+        } else {
+            var volverUsuarioSpan = btnVolver.querySelector('.span');
+            if (volverUsuarioSpan) {
+                volverUsuarioSpan.textContent = id ? 'Volver al historial' : 'Volver al Dashboard';
+            }
+            if (id) {
+                btnVolver.href = '../../historial/historial.html';
+            }
+
+            btnGuardar.addEventListener('click', function () {
+                btnGuardar.disabled = true;
+                guardarOrden(proceso).then(function () {
+                    btnGuardar.disabled = false;
+                    window.location.href = destinoPaso2;
+                });
+            });
+        }
+    }
+
     function inicializar() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
@@ -406,7 +466,7 @@
             textoBtn = 'Ver historial';
         } else {
             destino = id ? '../paso2/paso2.html?id=' + id : '../paso2/paso2.html';
-            textoBtn = id ? 'Validar orden' : 'Continuar al siguiente paso';
+            textoBtn = 'Continuar al siguiente paso';
         }
 
         renderResumen(proceso);
@@ -415,15 +475,6 @@
 
         body.hidden = false;
 
-        var contLink = document.querySelector('.hallazgo-actions .cta-white');
-        if (id && contLink) {
-            contLink.href = '../../historial/historial.html';
-            var contSpan = contLink.querySelector('.span');
-            if (contSpan) {
-                contSpan.textContent = 'Volver al historial';
-            }
-        }
-
         span = contBtn.querySelector('.span');
         if (span) {
             span.textContent = textoBtn;
@@ -431,6 +482,24 @@
 
         contBtn.addEventListener('click', function () {
             window.location.href = destino;
+        });
+
+        configurarAcciones(proceso, esAdmin, id);
+
+        btnIrHistorial.addEventListener('click', function () {
+            window.location.href = '../../historial/historial.html';
+        });
+
+        btnGuardarClose.addEventListener('click', cerrarModalGuardar);
+        guardarModal.addEventListener('click', function (evt) {
+            if (evt.target === guardarModal) {
+                cerrarModalGuardar();
+            }
+        });
+        document.addEventListener('keydown', function (evt) {
+            if (evt.key === 'Escape' && !guardarModal.hidden) {
+                cerrarModalGuardar();
+            }
         });
     }
 

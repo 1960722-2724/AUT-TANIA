@@ -204,13 +204,21 @@
                 </section>
 
                 <div class="hallazgo-actions">
-                    <a href="../../dashboard/dashboard.html" class="cta cta-white">
-                        <span class="span">Volver al Dashboard</span>
+                    <a href="../../dashboard/dashboard.html" class="cta cta-white" id="btn-volver">
+                        <span class="span">Cargar nuevo PDF</span>
                         <svg class="second" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line class="one" x1="19" y1="12" x2="5" y2="12"></line>
                             <polyline class="two" points="12 19 5 12 12 5"></polyline>
                         </svg>
                     </a>
+                    <button type="button" id="btn-guardar" class="cta cta-guardar">
+                        <span class="span">Guardar</span>
+                        <svg class="second" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="one" d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                            <polyline class="one" points="17 21 17 13 7 13 7 21"></polyline>
+                            <polyline class="two" points="7 3 7 8 15 8"></polyline>
+                        </svg>
+                    </button>
                     <button type="button" id="btn-continuar" class="cta">
                         <span class="span">Continuar al siguiente paso</span>
                         <svg class="second" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -221,6 +229,23 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <div class="modal-backdrop" id="guardar-modal" role="dialog" aria-modal="true"
+         aria-labelledby="guardar-modal-title" hidden>
+        <div class="modal">
+            <button type="button" class="modal-close" id="btn-guardar-close" aria-label="Cerrar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <span class="modal-icon modal-icon-info" aria-hidden="true">✓</span>
+            <h3 class="modal-title" id="guardar-modal-title">Orden guardada</h3>
+            <p class="modal-text">La orden se guardó correctamente en el historial.</p>
+            <button type="button" id="btn-ir-historial" class="btn btn-primary btn-block">Ir al historial</button>
+        </div>
     </div>
 
     <script src="../../../js/app.js?v=4"></script>
