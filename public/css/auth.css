@@ -4,10 +4,10 @@
     width: 100%;
     max-width: 420px;
     padding: 44px 40px;
-    background-color: rgba(255, 255, 255, 0.72);
+    background-color: rgba(255, 255, 255, 0.42);
     -webkit-backdrop-filter: blur(18px) saturate(160%);
     backdrop-filter: blur(18px) saturate(160%);
-    border: 1px solid rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.60);
     border-radius: var(--radius-lg);
     box-shadow:
         0 24px 60px rgba(46, 59, 146, 0.18),
@@ -101,16 +101,15 @@
 }
 
 .rol-nav {
-    --rol-oscuro: #0D1020;
-    --rol-activo: #4A8DFF;
-    --rol-normal: #B8C0D6;
-
     position: relative;
     display: flex;
     gap: 4px;
-    padding: 4px;
-    background-color: var(--rol-oscuro);
+    padding: 5px;
+    background: linear-gradient(180deg, var(--azul-borde) 0%, var(--azul-principal) 100%);
     border-radius: var(--radius-md);
+    box-shadow:
+        0 6px 18px rgba(46, 59, 146, 0.32),
+        inset 0 1px 0 rgba(255, 255, 255, 0.22);
 }
 
 .rol-nav-item {
@@ -127,17 +126,18 @@
     font-family: inherit;
     font-size: 0.95rem;
     font-weight: 600;
-    color: var(--rol-normal);
+    color: rgba(255, 255, 255, 0.75);
     cursor: pointer;
-    transition: color 0.25s ease;
+    transition: color 0.25s ease, background-color 0.25s ease;
 }
 
 .rol-nav-item:hover {
-    color: #DFE6F5;
+    color: var(--blanco);
+    background-color: rgba(255, 255, 255, 0.10);
 }
 
 .rol-nav-item.is-active {
-    color: var(--rol-activo);
+    color: var(--blanco);
 }
 
 .rol-nav-item svg {
@@ -152,15 +152,15 @@
 
 .rol-nav-indicator {
     position: absolute;
-    bottom: 6px;
+    bottom: 7px;
     left: 0;
     width: 0;
     height: 3px;
     border-radius: 9999px;
-    background-color: var(--rol-activo);
+    background-color: var(--naranja);
     box-shadow:
-        0 0 6px var(--rol-activo),
-        0 0 12px rgba(74, 141, 255, 0.65);
+        0 0 6px var(--naranja),
+        0 0 12px rgba(245, 154, 35, 0.70);
     transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
