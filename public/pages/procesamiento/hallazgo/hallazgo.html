@@ -241,10 +241,22 @@
                     <line x1="6" y1="6" x2="18" y2="18"></line>
                 </svg>
             </button>
-            <span class="modal-icon modal-icon-info" aria-hidden="true">✓</span>
+            <span class="modal-icon modal-icon-info" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <polyline class="one" points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </span>
             <h3 class="modal-title" id="guardar-modal-title">Orden guardada</h3>
             <p class="modal-text">La orden se guardó correctamente en el historial.</p>
-            <button type="button" id="btn-ir-historial" class="btn btn-primary btn-block">Ir al historial</button>
+            <button type="button" id="btn-ir-historial" class="cta cta-guardar">
+                <span class="span">Ir al historial</span>
+                <svg class="second" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <line class="one" x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline class="two" points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </button>
         </div>
     </div>
 
