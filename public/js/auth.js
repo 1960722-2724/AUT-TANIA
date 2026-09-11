@@ -149,6 +149,7 @@
                 if (authLayout) {
                     authLayout.classList.toggle('auth-layout--admin', rolActual === 'ADMIN');
                 }
+                rolNav.classList.toggle('rol-nav--blanco', rolActual === 'USUARIO');
                 moverIndicador(item);
             });
         });

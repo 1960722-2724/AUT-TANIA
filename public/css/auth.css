@@ -164,6 +164,33 @@
     transition: left 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.rol-nav--blanco {
+    background: var(--blanco);
+    box-shadow:
+        0 6px 18px rgba(46, 59, 146, 0.14),
+        inset 0 0 0 1px var(--gris-borde);
+}
+
+.rol-nav--blanco .rol-nav-item {
+    color: var(--azul-principal);
+}
+
+.rol-nav--blanco .rol-nav-item:hover {
+    color: var(--azul-hover);
+    background-color: rgba(46, 59, 146, 0.06);
+}
+
+.rol-nav--blanco .rol-nav-item.is-active {
+    color: var(--azul-principal);
+}
+
+.rol-nav--blanco .rol-nav-indicator {
+    background-color: var(--azul-borde);
+    box-shadow:
+        0 0 6px rgba(57, 73, 171, 0.55),
+        0 0 12px rgba(57, 73, 171, 0.35);
+}
+
 @media (max-width: 480px) {
     .auth-card {
         padding: var(--spacing-xl) var(--spacing-lg);
