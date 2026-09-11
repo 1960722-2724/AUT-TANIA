@@ -401,12 +401,12 @@
             inicializarAsignacion(proceso);
         }
 
-        if (id) {
-            destino = esAdmin ? '../paso1/paso1.html?id=' + id : '../paso2/paso2.html?id=' + id;
-            textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Validar orden';
+        if (esAdmin) {
+            destino = '../../historial/historial.html';
+            textoBtn = 'Ver historial';
         } else {
-            destino = esAdmin ? '../paso1/paso1.html' : '../paso2/paso2.html';
-            textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Continuar al siguiente paso';
+            destino = id ? '../paso2/paso2.html?id=' + id : '../paso2/paso2.html';
+            textoBtn = id ? 'Validar orden' : 'Continuar al siguiente paso';
         }
 
         renderResumen(proceso);
