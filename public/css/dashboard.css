@@ -120,19 +120,34 @@
     width: 100%;
     max-width: 420px;
     padding: 44px 32px 40px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 24px;
-    background:
-        radial-gradient(140% 90% at 100% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0) 52%),
-        linear-gradient(175deg, #3D4FC7 0%, #243187 100%);
-    color: var(--blanco);
+    border-radius: 6px;
+    background-color: var(--blanco);
+    color: var(--azul-principal);
     text-align: center;
     box-shadow:
-        0 40px 80px rgba(21, 30, 61, 0.45),
-        0 12px 30px rgba(21, 30, 61, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.22),
-        inset 0 -1px 0 rgba(255, 255, 255, 0.06);
+        6px 6px 0 var(--azul-principal),
+        12px 12px 0 var(--naranja);
+    overflow: hidden;
     animation: dz-modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dz-modal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 72px;
+    background: linear-gradient(135deg, var(--azul-borde) 0%, var(--azul-principal) 100%);
+    box-shadow: 0 8px 0 var(--naranja);
+    transform: skewX(-15deg);
+    transform-origin: top left;
+    z-index: 0;
+}
+
+.dz-modal-card > * {
+    position: relative;
+    z-index: 1;
 }
 
 @keyframes dz-modal-in {
@@ -163,6 +178,7 @@
     position: relative;
     width: 112px;
     height: 112px;
+    margin-top: 40px;
     margin-bottom: var(--spacing-md);
 }
 
@@ -174,7 +190,7 @@
 
 .dz-ring-track {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.14);
+    stroke: rgba(46, 59, 146, 0.12);
     stroke-width: 8;
 }
 
@@ -185,7 +201,7 @@
     stroke-linecap: round;
     stroke-dasharray: 326.73;
     stroke-dashoffset: 326.73;
-    filter: drop-shadow(0 0 8px rgba(90, 217, 255, 0.65));
+    filter: drop-shadow(0 0 8px rgba(46, 59, 146, 0.45));
     transition: stroke-dashoffset 0.35s ease;
 }
 
@@ -194,10 +210,10 @@
     inset: 14px;
     border-radius: 50%;
     border: 3px solid transparent;
-    border-top-color: rgba(140, 225, 255, 0.95);
-    border-right-color: rgba(140, 225, 255, 0.35);
+    border-top-color: var(--naranja);
+    border-right-color: rgba(245, 154, 35, 0.35);
     animation: dz-spin 1.3s linear infinite;
-    filter: drop-shadow(0 0 6px rgba(140, 225, 255, 0.80));
+    filter: drop-shadow(0 0 6px rgba(245, 154, 35, 0.50));
 }
 
 @keyframes dz-spin {
@@ -207,15 +223,15 @@
 }
 
 .dz-state-title {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    color: var(--blanco);
+    color: var(--azul-principal);
     line-height: 1.25;
 }
 
 .dz-state-sub {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.98rem;
+    color: var(--gris-texto);
 }
 
 .dz-check-circle {
@@ -224,16 +240,19 @@
     justify-content: center;
     width: 92px;
     height: 92px;
+    margin-top: 40px;
     margin-bottom: var(--spacing-md);
-    border-radius: 50%;
-    background-color: var(--blanco);
-    color: var(--azul-principal);
-    box-shadow: 0 14px 30px rgba(21, 30, 61, 0.30);
+    border-radius: 6px;
+    background: linear-gradient(180deg, var(--azul-borde) 0%, var(--azul-principal) 100%);
+    color: var(--blanco);
+    box-shadow: 6px 6px 0 var(--naranja);
+    transform: skewX(-15deg);
 }
 
 .dz-check {
     width: 46px;
     height: 46px;
+    transform: skewX(15deg);
 }
 
 .dz-done .btn {
@@ -242,33 +261,25 @@
 
 .btn-cancelar {
     position: absolute;
-    top: 16px;
-    right: 16px;
+    top: 18px;
+    right: 18px;
     z-index: 5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 38px;
     height: 38px;
-    border: 1px solid rgba(255, 255, 255, 0.28);
+    border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.12);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    color: rgba(255, 255, 255, 0.90);
+    background-color: rgba(255, 255, 255, 0.22);
+    color: var(--blanco);
     cursor: pointer;
-    box-shadow:
-        0 6px 16px rgba(21, 30, 61, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.30);
-    transition: background-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease, transform 0.16s ease;
+    transition: background-color 0.18s ease, color 0.18s ease, transform 0.16s ease;
 }
 
 .btn-cancelar:hover {
-    background-color: rgba(255, 255, 255, 0.24);
-    color: var(--blanco);
-    box-shadow:
-        0 8px 20px rgba(21, 30, 61, 0.30),
-        inset 0 1px 0 rgba(255, 255, 255, 0.40);
+    background-color: var(--blanco);
+    color: var(--azul-principal);
 }
 
 .btn-cancelar:active {
@@ -281,22 +292,24 @@
 }
 
 .btn-inverse {
-    background-color: var(--blanco);
-    color: var(--azul-principal);
+    background: linear-gradient(180deg, var(--azul-borde) 0%, var(--azul-principal) 100%);
+    color: var(--blanco);
     font-weight: 700;
-    box-shadow: 0 10px 24px rgba(21, 30, 61, 0.30);
+    box-shadow: 6px 6px 0 var(--naranja);
+    border-radius: 0;
 }
 
 .btn-inverse:hover {
-    background-color: #EDF0FA;
-    color: var(--azul-hover);
-    box-shadow: 0 8px 20px rgba(21, 30, 61, 0.30);
+    background: linear-gradient(180deg, var(--azul-borde) 0%, var(--azul-hover) 100%);
+    color: var(--blanco);
+    box-shadow: 8px 8px 0 var(--naranja);
 }
 
 .btn-inverse:disabled {
-    opacity: 0.75;
+    opacity: 0.6;
     cursor: not-allowed;
     box-shadow: none;
+    filter: grayscale(0.6);
 }
 
 .btn-icon {
