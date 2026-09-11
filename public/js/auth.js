@@ -10,6 +10,7 @@
     var rolItems = rolNav ? rolNav.querySelectorAll('.rol-nav-item') : [];
     var rolIndicator = document.getElementById('rol-nav-indicator');
     var rolActual = 'USUARIO';
+    var authLayout = document.querySelector('.auth-layout');
     var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
 
@@ -145,6 +146,9 @@
                 item.classList.add('is-active');
                 item.setAttribute('aria-selected', 'true');
                 rolActual = item.getAttribute('data-rol');
+                if (authLayout) {
+                    authLayout.classList.toggle('auth-layout--admin', rolActual === 'ADMIN');
+                }
                 moverIndicador(item);
             });
         });

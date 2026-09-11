@@ -5,12 +5,17 @@
     align-items: center;
     justify-content: center;
     padding: var(--spacing-lg);
-    background-image: url('../assets/images/fondo-login.jpg');
+    background-image: url('../assets/images/movil.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
     overflow: hidden;
+    transition: background-image 0.4s ease;
+}
+
+.auth-layout.auth-layout--admin {
+    background-image: url('../assets/images/admin.jpg');
 }
 
 .auth-layout::before {
