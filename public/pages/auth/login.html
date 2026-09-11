@@ -28,27 +28,28 @@
                 <div id="login-alert" class="alert" role="alert" hidden></div>
 
                 <div class="form-group">
-                    <label for="rol" class="form-label">Tipo de perfil</label>
-                    <div class="rol-toggle-wrap">
-                        <div class="toggle-cont" id="rol-toggle-cont">
-                            <input type="checkbox" class="toggle-input" id="rol" name="rol">
-                            <label class="toggle-label" for="rol" aria-label="Cambiar tipo de perfil">
-                                <span class="cont-icon">
-                                    <span class="sparkle" style="--deg: 75; --duration: 35" aria-hidden="true"></span>
-                                    <span class="sparkle" style="--deg: 165; --duration: 28" aria-hidden="true"></span>
-                                    <span class="sparkle" style="--deg: 255; --duration: 42" aria-hidden="true"></span>
-                                    <span class="sparkle" style="--deg: 345; --duration: 48" aria-hidden="true"></span>
-                                    <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
-                                    </svg>
-                                </span>
-                            </label>
-                        </div>
-                        <div class="rol-toggle-text">
-                            <span class="rol-status" id="rol-status">Usuario Móvil</span>
-                            <span class="rol-status-sub">Cambie de rol para iniciar como Administrador</span>
-                        </div>
-                    </div>
+                    <span id="rol-label" class="form-label">Tipo de perfil</span>
+                    <nav class="rol-nav" id="rol-nav" aria-labelledby="rol-label" role="tablist">
+                        <button type="button" class="rol-nav-item is-active" data-rol="USUARIO"
+                                role="tab" aria-selected="true" id="rol-usuario">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            <span class="rol-nav-text">Usuario Móvil</span>
+                        </button>
+                        <button type="button" class="rol-nav-item" data-rol="ADMIN"
+                                role="tab" aria-selected="false" id="rol-admin">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M12 3L4 6v6c0 5 3.4 8.5 8 9 4.6-.5 8-4 8-9V6l-8-3z"></path>
+                                <polyline points="9 12 11 14 15 10"></polyline>
+                            </svg>
+                            <span class="rol-nav-text">Administrador</span>
+                        </button>
+                        <span class="rol-nav-indicator" id="rol-nav-indicator" aria-hidden="true"></span>
+                    </nav>
                 </div>
 
                 <div class="form-group">

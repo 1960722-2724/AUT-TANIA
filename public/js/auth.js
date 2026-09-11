@@ -6,8 +6,10 @@
     var loginBtn = document.getElementById('login-btn');
     var cedulaInput = document.getElementById('cedula');
     var passwordInput = document.getElementById('password');
-    var rolInput = document.getElementById('rol');
-    var rolStatus = document.getElementById('rol-status');
+    var rolNav = document.getElementById('rol-nav');
+    var rolItems = rolNav ? rolNav.querySelectorAll('.rol-nav-item') : [];
+    var rolIndicator = document.getElementById('rol-nav-indicator');
+    var rolActual = 'USUARIO';
     var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
 
@@ -104,7 +106,7 @@
 
         var cedula = cedulaInput.value.trim();
         var password = passwordInput.value;
-        var rol = rolInput.checked ? 'ADMIN' : 'USUARIO';
+        var rol = rolActual;
 
         if (!validar(cedula, password)) {
             return;
@@ -126,11 +128,36 @@
 
     form.addEventListener('submit', manejarEnvio);
 
-    rolInput.addEventListener('change', function () {
-        if (rolStatus) {
-            rolStatus.textContent = rolInput.checked ? 'Administrador' : 'Usuario Móvil';
+    function moverIndicador(activo) {
+        if (rolIndicator && activo) {
+            rolIndicator.style.left = activo.offsetLeft + 'px';
+            rolIndicator.style.width = activo.offsetWidth + 'px';
         }
-    });
+    }
+
+    if (rolNav) {
+        rolItems.forEach(function (item) {
+            item.addEventListener('click', function () {
+                rolItems.forEach(function (otro) {
+                    otro.classList.remove('is-active');
+                    otro.setAttribute('aria-selected', 'false');
+                });
+                item.classList.add('is-active');
+                item.setAttribute('aria-selected', 'true');
+                rolActual = item.getAttribute('data-rol');
+                moverIndicador(item);
+            });
+        });
+
+        var activoInicial = rolNav.querySelector('.rol-nav-item.is-active') || rolItems[0];
+        window.addEventListener('load', function () {
+            moverIndicador(activoInicial);
+        });
+        window.addEventListener('resize', function () {
+            var activo = rolNav.querySelector('.rol-nav-item.is-active');
+            moverIndicador(activo);
+        });
+    }
 
     cedulaInput.addEventListener('input', function () {
         if (cedulaInput.value) {
