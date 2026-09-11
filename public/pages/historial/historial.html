@@ -100,11 +100,31 @@
                 </div>
             </section>
 
-            <div class="historial-lista" id="historial-lista"></div>
-
-            <p class="empty-text table-empty" id="historial-vacio" hidden>
-                No hay órdenes que coincidan con tu búsqueda.
-            </p>
+            <section class="page-card historial-resultados-card">
+                <header class="page-card-header historial-resultados-header">
+                    <div>
+                        <h2 class="page-card-title">Resultados</h2>
+                        <p class="page-card-subtitle">
+                            Registros que coinciden con los filtros aplicados.
+                        </p>
+                    </div>
+                    <button type="button" id="btn-exportar" class="btn-exportar" title="Exportar a Excel">
+                        <svg class="btn-exportar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        Exportar
+                    </button>
+                </header>
+                <div class="card-body">
+                    <div class="historial-lista" id="historial-lista"></div>
+                    <p class="empty-text table-empty" id="historial-vacio" hidden>
+                        No hay órdenes que coincidan con tu búsqueda.
+                    </p>
+                </div>
+            </section>
 
             <div class="form-actions">
                 <a href="../dashboard/dashboard.html" class="btn btn-primary btn-block">

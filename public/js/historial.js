@@ -16,6 +16,8 @@
     var procesos = [];
     var filtroMes = '';
     var filtroDia = '';
+    var filtradosActuales = [];
+    var btnExportar = document.getElementById('btn-exportar');
 
     function getEl(id) {
         return document.getElementById(id);
@@ -259,15 +261,18 @@
     }
 
     function mostrar(filtrados) {
+        filtradosActuales = filtrados;
         lista.innerHTML = '';
         if (filtrados.length === 0) {
             lista.hidden = true;
             vacio.hidden = false;
+            btnExportar.disabled = true;
             return;
         }
 
         lista.hidden = false;
         vacio.hidden = true;
+        btnExportar.disabled = false;
 
         filtrados.forEach(function (proceso) {
             lista.appendChild(crearTarjeta(proceso));
@@ -303,6 +308,81 @@
         }
     }
 
+    function escaparCelda(valor) {
+        return String(valor === null || valor === undefined ? '' : valor)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
+
+    function exportarExcel() {
+        var registros = filtradosActuales;
+        if (!registros || registros.length === 0) {
+            return;
+        }
+
+        var cabeceras = [
+            'Consecutivo',
+            'Fecha',
+            'Archivo',
+            'Escaneado',
+            'Técnico (reporta)',
+            'Vulnerabilidad',
+            'Municipio',
+            'Prioridad',
+            'Técnico que resuelve',
+            'Supervisor',
+            'WO',
+            'Estado V',
+            'Observación'
+        ];
+
+        var filas = registros.map(function (p) {
+            var h = p.hallazgo || {};
+            var f2 = p.fase2 || {};
+            return [
+                p.consecutivo,
+                formatearFecha(p.fecha),
+                p.nombre_archivo,
+                p.escaneado ? 'Sí' : 'No',
+                valorHallazgo(p, 'quienReporta'),
+                valorHallazgo(p, 'vulnerabilidadesInfraestructura'),
+                valorHallazgo(p, 'municipio'),
+                valorHallazgo(p, 'prioridad'),
+                f2.tecnico,
+                f2.supervisor,
+                f2.wo,
+                f2.estadoV,
+                f2.observaciones
+            ];
+        });
+
+        var html =
+            '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+            'xmlns:x="urn:schemas-microsoft-com:office:excel">' +
+            '<head><meta charset="utf-8"></head>' +
+            '<body><table border="1">' +
+            '<tr>' + cabeceras.map(function (c) { return '<th>' + escaparCelda(c) + '</th>'; }).join('') + '</tr>';
+
+        filas.forEach(function (fila) {
+            html += '<tr>' + fila.map(function (v) { return '<td>' + escaparCelda(v) + '</td>'; }).join('') + '</tr>';
+        });
+
+        html += '</table></body></html>';
+
+        var blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'historial_ordenes.xls';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        mostrarAlert('success', 'Excel exportado con ' + registros.length + ' órdenes.');
+    }
+
     function inicializar() {
         var sesion = App.obtenerSesion();
         var rol = sesion && sesion.usuario ? sesion.usuario.rol : '';
@@ -333,6 +413,10 @@
         filtroDia = selectDia.value;
         filtrarYRender();
     });
+
+    if (btnExportar) {
+        btnExportar.addEventListener('click', exportarExcel);
+    }
 
     getEl('logout-btn').addEventListener('click', cerrarSesion);
 
