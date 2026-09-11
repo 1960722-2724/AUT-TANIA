@@ -6,7 +6,8 @@
     var loginBtn = document.getElementById('login-btn');
     var cedulaInput = document.getElementById('cedula');
     var passwordInput = document.getElementById('password');
-    var rolSelect = document.getElementById('rol');
+    var rolInput = document.getElementById('rol');
+    var rolStatus = document.getElementById('rol-status');
     var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
 
@@ -103,7 +104,7 @@
 
         var cedula = cedulaInput.value.trim();
         var password = passwordInput.value;
-        var rol = rolSelect.value;
+        var rol = rolInput.checked ? 'ADMIN' : 'USUARIO';
 
         if (!validar(cedula, password)) {
             return;
@@ -124,6 +125,12 @@
     }
 
     form.addEventListener('submit', manejarEnvio);
+
+    rolInput.addEventListener('change', function () {
+        if (rolStatus) {
+            rolStatus.textContent = rolInput.checked ? 'Administrador' : 'Usuario Móvil';
+        }
+    });
 
     cedulaInput.addEventListener('input', function () {
         if (cedulaInput.value) {
