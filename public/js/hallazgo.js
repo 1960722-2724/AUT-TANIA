@@ -180,14 +180,24 @@
             return;
         }
 
+        var sesion = App.obtenerSesion();
+        var esAdmin = sesion && sesion.usuario && sesion.usuario.rol === 'ADMIN';
+        var destino = esAdmin ? '../paso1/paso1.html' : '../paso2/paso2.html';
+        var textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Continuar al siguiente paso';
+
         renderResumen(proceso);
         renderSecciones(proceso);
         renderEvidencia(proceso);
 
         body.hidden = false;
 
+        var span = contBtn.querySelector('.span');
+        if (span) {
+            span.textContent = textoBtn;
+        }
+
         contBtn.addEventListener('click', function () {
-            window.location.href = '../paso2/paso2.html';
+            window.location.href = destino;
         });
     }
 

@@ -105,3 +105,63 @@
         padding: var(--spacing-xl) var(--spacing-lg);
     }
 }
+
+.bugs-easter {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-sm);
+}
+
+.bugs-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 1.5px solid rgba(46, 59, 146, 0.35);
+    border-radius: 50%;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.1s ease;
+}
+
+.bugs-toggle:hover {
+    background-color: rgba(46, 59, 146, 0.12);
+}
+
+.bugs-toggle:active {
+    transform: scale(0.92);
+}
+
+.bugs-toggle .bugs-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--azul-principal);
+    opacity: 0.55;
+}
+
+.bugs-viewer[hidden] {
+    display: none;
+}
+
+.bugs-viewer {
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    border: 2px solid var(--azul-borde);
+    background-color: var(--blanco);
+}
+
+.bugs-gif {
+    display: block;
+    max-width: min(320px, 78vw);
+    max-height: 300px;
+    object-fit: contain;
+}

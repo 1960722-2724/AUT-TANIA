@@ -6,6 +6,7 @@
     var loginBtn = document.getElementById('login-btn');
     var cedulaInput = document.getElementById('cedula');
     var passwordInput = document.getElementById('password');
+    var rolSelect = document.getElementById('rol');
     var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
 
@@ -13,6 +14,9 @@
     var forgotModal = document.getElementById('forgot-modal');
     var forgotModalClose = document.getElementById('forgot-modal-close');
     var forgotModalAccept = document.getElementById('forgot-modal-accept');
+
+    var bugsToggle = document.getElementById('bugs-toggle');
+    var bugsViewer = document.getElementById('bugs-viewer');
 
     function mostrarErrorInput(input, errorEl, mensaje) {
         if (!mensaje) {
@@ -76,14 +80,14 @@
         return valido;
     }
 
-    function login(cedula, password) {
+    function login(cedula, password, rol) {
         return new Promise(function (resolve) {
             setTimeout(function () {
                 var sesion = {
                     usuario: {
-                        nombre: 'Usuario Demo',
+                        nombre: rol === 'ADMIN' ? 'Administrador Demo' : 'Usuario Demo',
                         cedula: cedula,
-                        rol: 'USUARIO'
+                        rol: rol
                     },
                     iniciada: new Date().toISOString()
                 };
@@ -99,6 +103,7 @@
 
         var cedula = cedulaInput.value.trim();
         var password = passwordInput.value;
+        var rol = rolSelect.value;
 
         if (!validar(cedula, password)) {
             return;
@@ -107,7 +112,7 @@
         loginBtn.disabled = true;
         loginBtn.textContent = 'Ingresando...';
 
-        login(cedula, password).then(function () {
+        login(cedula, password, rol).then(function () {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Iniciar sesión';
             mostrarAlert('success', 'Sesión iniciada correctamente.');
@@ -145,4 +150,10 @@
             cerrarModal();
         }
     });
+
+    if (bugsToggle && bugsViewer) {
+        bugsToggle.addEventListener('click', function () {
+            bugsViewer.hidden = !bugsViewer.hidden;
+        });
+    }
 })();
