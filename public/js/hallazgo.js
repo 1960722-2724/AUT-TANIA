@@ -172,18 +172,29 @@
     }
 
     function inicializar() {
-        var proceso = App.obtenerProceso();
+        var params = new URLSearchParams(window.location.search);
+        var id = params.get('id');
+        var proceso = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
 
         if (!proceso) {
-            mostrarAlert('error', 'No hay un proceso activo. Vuelve al Dashboard y sube un PDF.');
+            mostrarAlert('error', id ? 'No se encontró la orden solicitada.' : 'No hay un proceso activo. Vuelve al Dashboard y sube un PDF.');
             contBtn.disabled = true;
             return;
         }
 
         var sesion = App.obtenerSesion();
         var esAdmin = sesion && sesion.usuario && sesion.usuario.rol === 'ADMIN';
-        var destino = esAdmin ? '../paso1/paso1.html' : '../paso2/paso2.html';
-        var textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Continuar al siguiente paso';
+        var destino;
+        var textoBtn;
+        var span;
+
+        if (id) {
+            destino = esAdmin ? '../paso1/paso1.html?id=' + id : '../paso2/paso2.html?id=' + id;
+            textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Validar orden';
+        } else {
+            destino = esAdmin ? '../paso1/paso1.html' : '../paso2/paso2.html';
+            textoBtn = esAdmin ? 'Ver detalle del procesamiento' : 'Continuar al siguiente paso';
+        }
 
         renderResumen(proceso);
         renderSecciones(proceso);
@@ -191,7 +202,16 @@
 
         body.hidden = false;
 
-        var span = contBtn.querySelector('.span');
+        var contLink = document.querySelector('.hallazgo-actions .cta-white');
+        if (id && contLink) {
+            contLink.href = '../../historial/historial.html';
+            var contSpan = contLink.querySelector('.span');
+            if (contSpan) {
+                contSpan.textContent = 'Volver al historial';
+            }
+        }
+
+        span = contBtn.querySelector('.span');
         if (span) {
             span.textContent = textoBtn;
         }

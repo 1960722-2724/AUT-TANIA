@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paso 1 | AUTN TANIA</title>
+    <title>Historial | AUTN TANIA</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../../css/variables.css?v=3">
-    <link rel="stylesheet" href="../../../css/base.css?v=3">
-    <link rel="stylesheet" href="../../../css/components.css?v=3">
-    <link rel="stylesheet" href="../../../css/layout.css?v=3">
-    <link rel="stylesheet" href="../../../css/paso1.css?v=3">
+    <link rel="stylesheet" href="../css/variables.css?v=4">
+    <link rel="stylesheet" href="../css/base.css?v=4">
+    <link rel="stylesheet" href="../css/components.css?v=4">
+    <link rel="stylesheet" href="../css/layout.css?v=4">
+    <link rel="stylesheet" href="../css/historial.css?v=4">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
         <div class="sidebar-brand">
             <span class="brand-kicker">Menú</span>
-            <img src="../../../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
+            <img src="../assets/icons/logo.svg" alt="Logo de la aplicación" class="sidebar-logo">
             <button type="button" class="btn-sidebar-close" id="btn-sidebar-close" aria-label="Cerrar menú">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -64,69 +64,49 @@
                 </svg>
             </button>
             <div>
-                <h1 class="page-title">Paso 1</h1>
-                <p class="page-subtitle">Datos extraídos del PDF</p>
+                <h1 class="page-title">Historial</h1>
+                <p class="page-subtitle">Resumen de todas las órdenes procesadas</p>
             </div>
         </header>
 
         <main class="content">
-            <div id="paso1-alert" class="alert" role="alert" hidden></div>
+            <div id="historial-alert" class="alert" role="alert" hidden></div>
 
             <section class="page-card">
                 <header class="page-card-header">
-                    <h2 class="page-card-title">Información del archivo</h2>
-                    <p class="page-card-subtitle">Datos generales del documento procesado.</p>
+                    <h2 class="page-card-title">Órdenes registradas</h2>
+                    <p class="page-card-subtitle">Cada PDF procesado genera una orden. Haz clic en "Ver" para consultar la orden completa.</p>
                 </header>
                 <div class="card-body">
-                    <dl class="info-list">
-                        <div class="info-item">
-                            <dt>Archivo</dt>
-                            <dd id="info-archivo">—</dd>
-                        </div>
-                        <div class="info-item">
-                            <dt>N.º de páginas</dt>
-                            <dd id="info-paginas">—</dd>
-                        </div>
-                        <div class="info-item">
-                            <dt>Página del registro</dt>
-                            <dd id="info-pagina-registro">—</dd>
-                        </div>
-                        <div class="info-item">
-                            <dt>Posición del registro (Y)</dt>
-                            <dd id="info-posicion-registro">—</dd>
-                        </div>
-                    </dl>
-                </div>
-            </section>
-
-            <section class="page-card">
-                <header class="page-card-header">
-                    <h2 class="page-card-title">Registro fotográfico</h2>
-                    <p class="page-card-subtitle">Primera imagen identificada en la sección REGISTRO FOTOGRÁFICO.</p>
-                </header>
-                <div class="card-body card-center">
-                    <img id="registro-foto" class="foto-preview" alt="Registro fotográfico extraído" hidden>
-                    <p id="foto-vacio" class="empty-text" hidden>No se encontró ninguna imagen.</p>
-                </div>
-            </section>
-
-            <section class="page-card">
-                <header class="page-card-header">
-                    <h2 class="page-card-title">Texto extraído</h2>
-                    <p class="page-card-subtitle">Contenido textual de cada página del documento.</p>
-                </header>
-                <div class="card-body">
-                    <div id="texto-lista"></div>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="historial-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Archivo</th>
+                                    <th>Municipio</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historial-body"></tbody>
+                        </table>
+                    </div>
+                    <p class="empty-text table-empty" id="historial-vacio" hidden>
+                        No hay órdenes registradas aún.
+                    </p>
                 </div>
             </section>
 
             <div class="form-actions">
-                <button type="button" id="btn-continuar" class="btn btn-primary btn-block">Continuar al siguiente paso</button>
+                <a href="../dashboard/dashboard.html" class="btn btn-primary btn-block">
+                    Procesar nuevo PDF
+                </a>
             </div>
         </main>
     </div>
 
-    <script src="../../../js/app.js?v=3"></script>
-    <script src="../../../js/paso1.js?v=3"></script>
+    <script src="../js/app.js?v=4"></script>
+    <script src="../js/historial.js?v=4"></script>
 </body>
 </html>
