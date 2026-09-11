@@ -1,84 +1,235 @@
-.table-wrapper {
-    overflow-x: auto;
+.historial-filtros-card .page-card-header {
+    padding-bottom: 0;
+    border-bottom: none;
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-    min-width: 600px;
+.historial-filtros {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: var(--spacing-md);
+    align-items: end;
 }
 
-.data-table th {
-    padding: 12px 16px;
-    text-align: left;
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--naranja-oscuro);
-    border-bottom: 2px solid var(--azul-borde);
-    background-color: var(--gris-fondo);
-    white-space: nowrap;
+.historial-filtros .form-group {
+    margin-bottom: 0;
 }
 
-.data-table td {
-    padding: 14px 16px;
+.historial-lista {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.orden-card {
+    background-color: var(--blanco);
+    border: 1px solid var(--gris-borde);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.orden-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--azul-borde);
+}
+
+.orden-card.pendiente {
+    border-left: 5px solid var(--naranja);
+}
+
+.orden-card.completada {
+    border-left: 5px solid var(--azul-principal);
+}
+
+.orden-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
     border-bottom: 1px solid var(--gris-borde);
-    color: var(--gris-texto);
-    vertical-align: middle;
+    background-color: var(--gris-fondo);
+    flex-wrap: wrap;
 }
 
-.data-table tbody tr {
-    transition: background-color 0.15s ease;
+.orden-titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    min-width: 0;
 }
 
-.data-table tbody tr:hover {
-    background-color: rgba(46, 59, 146, 0.04);
-}
-
-.data-table .cell-fecha {
+.orden-consecutivo {
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     color: var(--azul-principal);
-    font-weight: 500;
-    white-space: nowrap;
 }
 
-.data-table .cell-archivo {
-    max-width: 260px;
+.orden-consecutivo.pendiente {
+    color: var(--naranja-oscuro);
+}
+
+.orden-archivo {
+    font-size: 0.82rem;
+    color: var(--gris-texto);
+    max-width: 300px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-weight: 600;
-    color: var(--azul-principal);
 }
 
-.data-table .table-empty {
-    padding: var(--spacing-xl);
-    text-align: center;
-}
-
-.btn-ver-orden {
-    display: inline-flex;
+.orden-badges {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    padding: 8px 18px;
-    border: 2px solid var(--azul-principal);
-    border-radius: var(--radius-sm);
-    color: var(--azul-principal);
-    font-size: 0.85rem;
+    gap: var(--spacing-xs);
+    flex-wrap: wrap;
+}
+
+.orden-fecha {
+    font-size: 0.82rem;
     font-weight: 600;
-    text-decoration: none;
-    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+    color: var(--gris-texto);
+    white-space: nowrap;
 }
 
-.btn-ver-orden:hover {
+.orden-fases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background-color: var(--gris-borde);
+}
+
+.orden-fases .orden-fase {
+    background-color: var(--blanco);
+}
+
+.orden-fases:only-child {
+    grid-template-columns: 1fr;
+}
+
+.orden-fase {
+    padding: var(--spacing-md) var(--spacing-lg);
+    min-width: 0;
+}
+
+.orden-fase-titulo {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    margin-bottom: var(--spacing-sm);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.orden-fase-titulo .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.orden-fase1 .orden-fase-titulo {
+    color: var(--azul-principal);
+}
+
+.orden-fase1 .orden-fase-titulo .dot {
     background-color: var(--azul-principal);
-    color: var(--blanco);
-    box-shadow: 0 6px 14px rgba(46, 59, 146, 0.28);
 }
 
-@media (max-width: 600px) {
-    .data-table {
-        min-width: 520px;
+.orden-fase2 .orden-fase-titulo {
+    color: var(--naranja-oscuro);
+}
+
+.orden-fase2 .orden-fase-titulo .dot {
+    background-color: var(--naranja);
+}
+
+.orden-fase-vacio {
+    font-size: 0.9rem;
+    color: var(--gris-texto);
+}
+
+.orden-datos {
+    margin: 0;
+}
+
+.orden-dato {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--gris-borde);
+}
+
+.orden-dato:last-child {
+    border-bottom: none;
+}
+
+.orden-dato dt {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--gris-texto);
+}
+
+.orden-dato dd {
+    margin: 0;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--azul-principal);
+}
+
+.orden-dato dd.muted {
+    color: var(--gris-texto);
+}
+
+.orden-acciones {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--gris-borde);
+    background-color: var(--gris-fondo);
+}
+
+@media (max-width: 760px) {
+    .historial-filtros {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .historial-busqueda {
+        grid-column: 1 / -1;
+    }
+
+    .orden-fases {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .historial-filtros {
+        grid-template-columns: 1fr;
+    }
+
+    .historial-busqueda {
+        grid-column: auto;
+    }
+
+    .orden-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .orden-acciones {
+        flex-direction: column;
+    }
+
+    .orden-acciones .btn-ver-orden {
+        width: 100%;
     }
 }

@@ -1,10 +1,21 @@
 (function () {
     'use strict';
 
+    var MESES = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+
     var alertBox = document.getElementById('historial-alert');
-    var tabla = document.getElementById('historial-table');
-    var cuerpo = document.getElementById('historial-body');
+    var lista = document.getElementById('historial-lista');
     var vacio = document.getElementById('historial-vacio');
+    var inputBuscar = document.getElementById('historial-buscar');
+    var selectMes = document.getElementById('filtro-mes');
+    var selectDia = document.getElementById('filtro-dia');
+
+    var procesos = [];
+    var filtroMes = '';
+    var filtroDia = '';
 
     function getEl(id) {
         return document.getElementById(id);
@@ -41,6 +52,13 @@
         return div.innerHTML;
     }
 
+    function normalizar(texto) {
+        return String(texto || '')
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '');
+    }
+
     function formatearFecha(iso) {
         var d = new Date(iso);
         if (isNaN(d.getTime())) {
@@ -56,64 +74,233 @@
         });
     }
 
-    function badgeEstado(estado) {
-        var clase = estado === 'error' ? 'badge badge-orange' : 'badge badge-blue';
-        return '<span class="' + clase + '">' + escapar(estado || 'procesado') + '</span>';
+    function valorHallazgo(proceso, clave) {
+        var h = proceso.hallazgo || {};
+        var v = h[clave];
+        if (v === undefined || v === null) {
+            return '';
+        }
+        return String(v).trim();
     }
 
-    function crearFila(proceso) {
-        var tr = document.createElement('tr');
+    function esPendiente(proceso) {
+        return proceso.escaneado === true && !proceso.fase2;
+    }
 
-        var hallazgo = proceso.hallazgo || {};
-        var municipio = hallazgo.municipio || '—';
+    function textoBusqueda(proceso) {
+        var f2 = proceso.fase2 || {};
+        return normalizar([
+            proceso.consecutivo,
+            valorHallazgo(proceso, 'quienReporta'),
+            valorHallazgo(proceso, 'vulnerabilidadesInfraestructura'),
+            f2.tecnico,
+            f2.supervisor,
+            f2.wo,
+            proceso.nombre_archivo
+        ].join(' '));
+    }
 
-        var tdFecha = document.createElement('td');
-        tdFecha.textContent = formatearFecha(proceso.fecha);
-        tdFecha.className = 'cell-fecha';
+    function crearDato(etiqueta, valor, muted) {
+        var dl = document.createElement('dl');
+        dl.className = 'orden-dato';
 
-        var tdArchivo = document.createElement('td');
-        tdArchivo.textContent = proceso.nombre_archivo || '—';
-        tdArchivo.className = 'cell-archivo';
-        tdArchivo.title = tdArchivo.textContent;
+        var dt = document.createElement('dt');
+        dt.textContent = etiqueta;
 
-        var tdMunicipio = document.createElement('td');
-        tdMunicipio.textContent = municipio;
+        var dd = document.createElement('dd');
+        dd.textContent = valor || '—';
+        if (muted && !valor) {
+            dd.className = 'muted';
+        }
 
-        var tdEstado = document.createElement('td');
-        tdEstado.innerHTML = badgeEstado(proceso.estado);
+        dl.appendChild(dt);
+        dl.appendChild(dd);
+        return dl;
+    }
 
-        var tdAcciones = document.createElement('td');
+    function crearFase1(proceso) {
+        var div = document.createElement('div');
+        div.className = 'orden-fase orden-fase1';
+
+        var titulo = document.createElement('p');
+        titulo.className = 'orden-fase-titulo';
+        titulo.innerHTML = '<span class="dot"></span> Fase 1 · PDF';
+
+        var contenido = document.createElement('div');
+        contenido.appendChild(crearDato('Técnico (reporta)', valorHallazgo(proceso, 'quienReporta'), true));
+        contenido.appendChild(crearDato('Vulnerabilidad', valorHallazgo(proceso, 'vulnerabilidadesInfraestructura'), true));
+        contenido.appendChild(crearDato('Municipio', valorHallazgo(proceso, 'municipio'), true));
+        contenido.appendChild(crearDato('Prioridad', valorHallazgo(proceso, 'prioridad'), true));
+
+        div.appendChild(titulo);
+        div.appendChild(contenido);
+        return div;
+    }
+
+    function crearFase2(proceso) {
+        var f2 = proceso.fase2 || {};
+        var div = document.createElement('div');
+        div.className = 'orden-fase orden-fase2';
+
+        var titulo = document.createElement('p');
+        titulo.className = 'orden-fase-titulo';
+        titulo.innerHTML = '<span class="dot"></span> Fase 2 · Móvil';
+
+        var contenido = document.createElement('div');
+        contenido.appendChild(crearDato('Técnico que resuelve', f2.tecnico, true));
+        contenido.appendChild(crearDato('Supervisor', f2.supervisor, true));
+        contenido.appendChild(crearDato('WO', f2.wo, true));
+        contenido.appendChild(crearDato('Observación', f2.observaciones, true));
+
+        div.appendChild(titulo);
+        div.appendChild(contenido);
+        return div;
+    }
+
+    function crearTarjeta(proceso) {
+        var article = document.createElement('article');
+        var pendiente = esPendiente(proceso);
+        article.className = 'orden-card' + (pendiente ? ' pendiente' : ' completada');
+
+        var header = document.createElement('div');
+        header.className = 'orden-header';
+
+        var titulo = document.createElement('div');
+        titulo.className = 'orden-titulo';
+
+        var consecutivo = document.createElement('span');
+        consecutivo.className = 'orden-consecutivo' + (pendiente ? ' pendiente' : '');
+        consecutivo.textContent = '#' + proceso.consecutivo;
+
+        var archivo = document.createElement('span');
+        archivo.className = 'orden-archivo';
+        archivo.textContent = proceso.nombre_archivo || 'PDF';
+        archivo.title = archivo.textContent;
+
+        titulo.appendChild(consecutivo);
+        titulo.appendChild(archivo);
+
+        var badges = document.createElement('div');
+        badges.className = 'orden-badges';
+
+        var badge1 = document.createElement('span');
+        badge1.className = 'badge badge-blue';
+        badge1.textContent = 'Fase 1';
+
+        var fecha = document.createElement('span');
+        fecha.className = 'orden-fecha';
+        fecha.textContent = formatearFecha(proceso.fecha);
+
+        badges.appendChild(badge1);
+
+        if (pendiente) {
+            var badgePend = document.createElement('span');
+            badgePend.className = 'badge badge-orange';
+            badgePend.textContent = 'Pendiente móvil';
+            badges.appendChild(badgePend);
+        } else {
+            var badge2 = document.createElement('span');
+            badge2.className = 'badge badge-blue';
+            badge2.textContent = 'Fase 2';
+            badges.appendChild(badge2);
+        }
+
+        badges.appendChild(fecha);
+
+        header.appendChild(titulo);
+        header.appendChild(badges);
+
+        var fases = document.createElement('div');
+        fases.className = 'orden-fases';
+        fases.appendChild(crearFase1(proceso));
+        if (proceso.fase2) {
+            fases.appendChild(crearFase2(proceso));
+        }
+
+        var acciones = document.createElement('div');
+        acciones.className = 'orden-acciones';
+
         var a = document.createElement('a');
         a.className = 'btn-ver-orden';
         a.href = '../procesamiento/hallazgo/hallazgo.html?id=' + encodeURIComponent(proceso.id);
-        a.textContent = 'Ver';
-        tdAcciones.appendChild(a);
+        a.textContent = 'Ver detalle';
+        acciones.appendChild(a);
 
-        tr.appendChild(tdFecha);
-        tr.appendChild(tdArchivo);
-        tr.appendChild(tdMunicipio);
-        tr.appendChild(tdEstado);
-        tr.appendChild(tdAcciones);
+        article.appendChild(header);
+        article.appendChild(fases);
+        article.appendChild(acciones);
 
-        return tr;
+        return article;
     }
 
-    function render() {
-        var procesos = App.obtenerHistorial();
+    function filtrarYRender() {
+        var texto = normalizar(inputBuscar.value.trim());
+        var original = procesos;
+        var filtrados = original.filter(function (p) {
+            if (filtroMes && p.fecha) {
+                var d = new Date(p.fecha);
+                if (d.getMonth() !== parseInt(filtroMes, 10)) {
+                    return false;
+                }
+            }
+            if (filtroDia && p.fecha) {
+                var d2 = new Date(p.fecha);
+                if (d2.getDate() !== parseInt(filtroDia, 10)) {
+                    return false;
+                }
+            }
+            if (texto) {
+                return textoBusqueda(p).indexOf(texto) !== -1;
+            }
+            return true;
+        });
 
-        if (procesos.length === 0) {
-            tabla.hidden = true;
+        mostrar(filtrados);
+    }
+
+    function mostrar(filtrados) {
+        lista.innerHTML = '';
+        if (filtrados.length === 0) {
+            lista.hidden = true;
             vacio.hidden = false;
             return;
         }
 
-        tabla.hidden = false;
+        lista.hidden = false;
         vacio.hidden = true;
-        cuerpo.innerHTML = '';
 
-        procesos.forEach(function (proceso) {
-            cuerpo.appendChild(crearFila(proceso));
+        filtrados.forEach(function (proceso) {
+            lista.appendChild(crearTarjeta(proceso));
         });
+    }
+
+    function llenarSelectMes() {
+        var option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Todos';
+        selectMes.appendChild(option);
+
+        MESES.forEach(function (mes, i) {
+            var o = document.createElement('option');
+            o.value = String(i);
+            o.textContent = mes;
+            selectMes.appendChild(o);
+        });
+    }
+
+    function llenarSelectDia() {
+        selectDia.innerHTML = '';
+        var option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Todos';
+        selectDia.appendChild(option);
+
+        for (var d = 1; d <= 31; d++) {
+            var o = document.createElement('option');
+            o.value = String(d);
+            o.textContent = String(d);
+            selectDia.appendChild(o);
+        }
     }
 
     function inicializar() {
@@ -126,13 +313,26 @@
             return;
         }
 
-        render();
+        procesos = App.obtenerHistorial();
+        llenarSelectMes();
+        llenarSelectDia();
+        filtrarYRender();
     }
 
     function cerrarSesion() {
         App.cerrarSesion();
         window.location.href = '../auth/login.html';
     }
+
+    inputBuscar.addEventListener('input', filtrarYRender);
+    selectMes.addEventListener('change', function () {
+        filtroMes = selectMes.value;
+        filtrarYRender();
+    });
+    selectDia.addEventListener('change', function () {
+        filtroDia = selectDia.value;
+        filtrarYRender();
+    });
 
     getEl('logout-btn').addEventListener('click', cerrarSesion);
 

@@ -38,6 +38,22 @@
         localStorage.removeItem(SESSION_KEY);
     }
 
+    function generarConsecutivo() {
+        var historial = obtenerHistorial();
+        var max = 0;
+        historial.forEach(function (p) {
+            var n = parseInt(p.consecutivo, 10);
+            if (!isNaN(n) && n > max) {
+                max = n;
+            }
+        });
+        var s = String(max + 1);
+        while (s.length < 4) {
+            s = '0' + s;
+        }
+        return s;
+    }
+
     function prepararProceso(proceso) {
         if (!proceso) {
             return proceso;
@@ -50,6 +66,9 @@
         }
         if (!proceso.nombre_archivo) {
             proceso.nombre_archivo = proceso.archivo_original || proceso.archivo || 'Sin nombre';
+        }
+        if (!proceso.consecutivo) {
+            proceso.consecutivo = generarConsecutivo();
         }
         if (!proceso.estado) {
             proceso.estado = 'procesado';
@@ -137,6 +156,15 @@
         }
 
         return proceso;
+    }
+
+    function guardarFase2(procesoId, datos) {
+        var proceso = obtenerProcesoPorId(procesoId);
+        if (!proceso) {
+            return null;
+        }
+        proceso.fase2 = datos;
+        return actualizarProceso(proceso);
     }
 
     function obtenerUsuariosMoviles() {
@@ -302,6 +330,7 @@
         obtenerHistorial: obtenerHistorial,
         obtenerProcesoPorId: obtenerProcesoPorId,
         actualizarProceso: actualizarProceso,
+        guardarFase2: guardarFase2,
         obtenerUsuariosMoviles: obtenerUsuariosMoviles,
         eliminarProceso: eliminarProceso,
         iniciarLayout: iniciarLayout

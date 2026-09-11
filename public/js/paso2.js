@@ -16,6 +16,17 @@
     var fotoError = document.getElementById('foto-error');
 
     var archivoFoto = null;
+    var procesoId = null;
+
+    function obtenerProcesoActual() {
+        var params = new URLSearchParams(window.location.search);
+        var id = params.get('id');
+        var proceso = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
+        if (proceso && proceso.id) {
+            procesoId = proceso.id;
+        }
+        return proceso;
+    }
 
     var campos = [
         { input: document.getElementById('supervisor'), error: document.getElementById('supervisor-error'), label: 'Supervisor', requerido: true },
@@ -136,8 +147,11 @@
                     tecnico: getEl('tecnico').value.trim(),
                     observaciones: getEl('observaciones').value.trim(),
                     estadoV: getEl('estado').value,
-                    foto: archivoFoto
+                    foto: archivoFoto ? true : false
                 };
+                if (procesoId) {
+                    App.guardarFase2(procesoId, datos);
+                }
                 resolve(datos);
             }, 400);
         });
@@ -180,6 +194,31 @@
         getEl('user-avatar').textContent = iniciales(nombre);
     }
 
+    function precargarFase2(proceso) {
+        if (!proceso || !proceso.fase2) {
+            return;
+        }
+        var f2 = proceso.fase2;
+        if (f2.supervisor) {
+            getEl('supervisor').value = f2.supervisor;
+        }
+        if (f2.wo) {
+            getEl('wo').value = f2.wo;
+        }
+        if (f2.tecnico) {
+            getEl('tecnico').value = f2.tecnico;
+        }
+        if (f2.estadoV) {
+            getEl('estado').value = f2.estadoV;
+        }
+        if (f2.observaciones) {
+            getEl('observaciones').value = f2.observaciones;
+        }
+        if (f2.foto) {
+            archivoFoto = {};
+        }
+    }
+
     function cerrarSesion() {
         App.cerrarSesion();
         window.location.href = '../../auth/login.html';
@@ -216,4 +255,5 @@
     getEl('logout-btn').addEventListener('click', cerrarSesion);
 
     mostrarUsuario();
+    precargarFase2(obtenerProcesoActual());
 })();

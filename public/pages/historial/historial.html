@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../css/variables.css?v=4">
-    <link rel="stylesheet" href="../css/base.css?v=4">
-    <link rel="stylesheet" href="../css/components.css?v=4">
-    <link rel="stylesheet" href="../css/layout.css?v=4">
-    <link rel="stylesheet" href="../css/historial.css?v=4">
+    <link rel="stylesheet" href="../css/variables.css?v=5">
+    <link rel="stylesheet" href="../css/base.css?v=5">
+    <link rel="stylesheet" href="../css/components.css?v=5">
+    <link rel="stylesheet" href="../css/layout.css?v=5">
+    <link rel="stylesheet" href="../css/historial.css?v=5">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
@@ -72,31 +72,39 @@
         <main class="content">
             <div id="historial-alert" class="alert" role="alert" hidden></div>
 
-            <section class="page-card">
+            <section class="page-card historial-filtros-card">
                 <header class="page-card-header">
                     <h2 class="page-card-title">Órdenes registradas</h2>
-                    <p class="page-card-subtitle">Cada PDF procesado genera una orden. Haz clic en "Ver" para consultar la orden completa.</p>
+                    <p class="page-card-subtitle">
+                        Cada PDF procesado genera un consecutivo. Filtra por fecha o busca por consecutivo o técnico.
+                    </p>
                 </header>
                 <div class="card-body">
-                    <div class="table-wrapper">
-                        <table class="data-table" id="historial-table">
-                            <thead>
-                                <tr>
-                                    <th>Fecha</th>
-                                    <th>Archivo</th>
-                                    <th>Municipio</th>
-                                    <th>Estado</th>
-                                    <th>Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody id="historial-body"></tbody>
-                        </table>
+                    <div class="historial-filtros">
+                        <div class="form-group historial-busqueda">
+                            <label for="historial-buscar" class="form-label">Buscar</label>
+                            <input type="text" id="historial-buscar" class="form-input"
+                                   placeholder="Consecutivo o nombre del técnico...">
+                        </div>
+
+                        <div class="form-group historial-rango">
+                            <label for="filtro-mes" class="form-label">Mes</label>
+                            <select id="filtro-mes" class="form-select"></select>
+                        </div>
+
+                        <div class="form-group historial-rango">
+                            <label for="filtro-dia" class="form-label">Día</label>
+                            <select id="filtro-dia" class="form-select"></select>
+                        </div>
                     </div>
-                    <p class="empty-text table-empty" id="historial-vacio" hidden>
-                        No hay órdenes registradas aún.
-                    </p>
                 </div>
             </section>
+
+            <div class="historial-lista" id="historial-lista"></div>
+
+            <p class="empty-text table-empty" id="historial-vacio" hidden>
+                No hay órdenes que coincidan con tu búsqueda.
+            </p>
 
             <div class="form-actions">
                 <a href="../dashboard/dashboard.html" class="btn btn-primary btn-block">
@@ -106,7 +114,7 @@
         </main>
     </div>
 
-    <script src="../js/app.js?v=4"></script>
-    <script src="../js/historial.js?v=4"></script>
+    <script src="../js/app.js?v=5"></script>
+    <script src="../js/historial.js?v=5"></script>
 </body>
 </html>
