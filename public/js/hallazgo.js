@@ -178,6 +178,7 @@
 
     var usuariosMoviles = [];
     var usuarioSeleccionado = null;
+    var procesoAsignacion = null;
 
     var assignCard = document.getElementById('assign-card');
     var assignInput = document.getElementById('asignar-usuario');
@@ -320,6 +321,7 @@
     }
 
     function seleccionarUsuario(u, proceso) {
+        var proc = proceso || procesoAsignacion;
         usuarioSeleccionado = u;
         assignInput.value = '';
         assignSugerencias.hidden = true;
@@ -329,14 +331,14 @@
         assignCedula.textContent = 'C.C. ' + u.cedula;
         assignAvatar.textContent = inicialesShort(u.nombre);
         asignarError.hidden = true;
-        persistirAsignacion(proceso, u);
+        persistirAsignacion(proc, u);
     }
 
-    function quitarSeleccion(proceso) {
+    function quitarSeleccion() {
         usuarioSeleccionado = null;
         assignSeleccion.hidden = true;
         assignInput.value = '';
-        persistirAsignacion(proceso, null);
+        persistirAsignacion(procesoAsignacion, null);
     }
 
     function persistirAsignacion(proceso, usuario) {
@@ -358,6 +360,7 @@
     }
 
     function inicializarAsignacion(proceso) {
+        procesoAsignacion = proceso;
         App.obtenerUsuariosMoviles().then(function (lista) {
             usuariosMoviles = lista;
         });
@@ -393,7 +396,7 @@
         });
 
         btnQuitar.addEventListener('click', function () {
-            quitarSeleccion(proceso);
+            quitarSeleccion();
         });
     }
 
