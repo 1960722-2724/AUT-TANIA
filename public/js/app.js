@@ -4,7 +4,17 @@
     var SESSION_KEY = 'autn_sesion';
     var PROCESO_ACTUAL_KEY = 'autn_proceso_actual_id';
 
-    var API_BASE = '/api/pdf/';
+    function apiBaseDesdePagina() {
+        var partes = window.location.pathname.split('/');
+        var indicePages = partes.indexOf('pages');
+        if (indicePages === -1) {
+            return 'api/pdf/';
+        }
+        var profundidad = partes.length - indicePages - 1;
+        return new Array(profundidad + 1).join('../') + 'api/pdf/';
+    }
+
+    var API_BASE = apiBaseDesdePagina();
 
     function apiFetch(ruta, opciones) {
         return fetch(API_BASE + ruta, opciones).then(function (resp) {

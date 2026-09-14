@@ -33,7 +33,8 @@ try {
          FROM accesos a
          INNER JOIN usuarios u ON u.id_usuario = a.id_usuario
          INNER JOIN roles r ON r.id_rol = a.id_rol
-         WHERE a.id_app = ? AND a.estado_aprobacion = "aprobado" AND r.nombre_rol = "USUARIO"
+         WHERE a.id_app = ? AND a.estado_aprobacion = "aprobado"
+           AND LOWER(r.nombre_rol) NOT LIKE "%admin%"
          ORDER BY u.n_completo'
     );
     $stmt->execute([ID_APP_AUTN_TANIA]);

@@ -252,6 +252,17 @@
             return [];
         }
 
+        var exactos = [];
+        usuariosMoviles.forEach(function (u) {
+            if (u.cedula === consulta.trim() || normalizar(u.nombre) === normalizar(consulta)) {
+                exactos.push(u);
+            }
+        });
+
+        if (exactos.length > 0) {
+            return exactos.slice(0, 1);
+        }
+
         var resultados = [];
         usuariosMoviles.forEach(function (u) {
             var scoreNombre = puntuar(consulta, u.nombre);
