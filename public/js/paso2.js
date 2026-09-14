@@ -233,6 +233,12 @@
         if (!proceso || !proceso.fase2) {
             return;
         }
+
+        getEl('paso2-edit-note').hidden = false;
+        var btnTxt = document.querySelector('#paso2-btn .span');
+        if (btnTxt) {
+            btnTxt.textContent = 'Guardar cambios';
+        }
         var f2 = proceso.fase2;
         if (f2.supervisor) {
             getEl('supervisor').value = f2.supervisor;

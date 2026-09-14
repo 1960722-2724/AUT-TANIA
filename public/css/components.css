@@ -259,6 +259,23 @@
     border: 1.5px solid var(--azul-borde);
 }
 
+.alert-info {
+    background-color: rgba(46, 59, 146, 0.06);
+    color: var(--azul-principal);
+    border: 1.5px solid var(--azul-borde);
+}
+
+.alert-info .alert-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.alert-info svg {
+    display: block;
+    margin-top: 1px;
+}
+
 .link {
     font-weight: 600;
 }
