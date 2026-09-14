@@ -331,6 +331,10 @@
     display: none;
 }
 
+.dropzone[hidden] {
+    display: none;
+}
+
 .mh-lista {
     display: flex;
     flex-direction: column;
