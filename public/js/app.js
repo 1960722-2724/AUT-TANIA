@@ -14,6 +14,16 @@
         return new Array(profundidad + 1).join('../') + 'api/pdf/';
     }
 
+    function publicBaseDesdePagina() {
+        var partes = window.location.pathname.split('/');
+        var indicePages = partes.indexOf('pages');
+        if (indicePages === -1) {
+            return '';
+        }
+        var profundidad = partes.length - indicePages - 1;
+        return new Array(profundidad + 1).join('../');
+    }
+
     var API_BASE = apiBaseDesdePagina();
 
     function apiFetch(ruta, opciones) {
@@ -292,6 +302,7 @@
             return;
         }
 
+        var base = publicBaseDesdePagina();
         var sesion = obtenerSesion();
         var rol = sesion && sesion.usuario ? sesion.usuario.rol : '';
         var actual = paginaActual();
@@ -300,13 +311,13 @@
             {
                 seccion: 'Principal',
                 id: 'dashboard',
-                href: '/pages/dashboard/dashboard.html',
+                href: base + 'pages/dashboard/dashboard.html',
                 etiqueta: 'Dashboard',
                 icono: 'dashboard'
             },
             {
                 id: 'procesamiento',
-                href: '/pages/procesamiento/hallazgo/hallazgo.html',
+                href: base + 'pages/procesamiento/hallazgo/hallazgo.html',
                 etiqueta: 'Procesamiento',
                 icono: 'documento'
             }
@@ -315,7 +326,7 @@
         if (rol === 'ADMIN') {
             opciones.push({
                 id: 'historial',
-                href: '/pages/historial/historial.html',
+                href: base + 'pages/historial/historial.html',
                 etiqueta: 'Historial',
                 icono: 'historial'
             });
