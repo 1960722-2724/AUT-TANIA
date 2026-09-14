@@ -894,12 +894,13 @@ Todos los archivos generados durante el procesamiento (PDFs subidos, PNG de OCR,
 
 * Poppler: detectado vía `config.php` (override `POPPLER_BIN`, instalación winget de Windows o PATH del sistema).
 * Tesseract: detectado vía `config.php` (`TESSERACT_BIN`, `Program Files\Tesseract-OCR` o PATH). Se requiere el idioma `spa` instalado.
-* `main.py` arranca `php -S` para servir los endpoints además de los estáticos.
+* La app se sirve con Apache+PHP de XAMPP (carpeta del proyecto dentro de `htdocs/`), no con un servidor de desarrollo aparte.
 
 ### Configuración local (desarrollo Windows)
 
 * Poppler instalado por winget: `oschwartz10612.Poppler_Microsoft.Winget.Source...`.
 * Tesseract instalado en `C:\Program Files\Tesseract-OCR\` con `spa.traineddata`.
+* Base de datos MySQL de XAMPP (`u510981418_horasextra`), conexión vía `.env` en la raíz del proyecto (ver `public/api/db.php`).
 
 La estructura del documento se considera consistente según las reglas establecidas para el proyecto.
 
