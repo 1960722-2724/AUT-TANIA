@@ -158,6 +158,7 @@
             imagen: fila.imagen || null,
             texto: fila.texto || [],
             asignado_a: fila.asignado_a || null,
+            fase2: fase2 || null,
             hallazgo: convertirDeApi(fila.hallazgo, MAPA_HALLAZGO)
         };
     }

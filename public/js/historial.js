@@ -157,6 +157,7 @@
         contenido.appendChild(crearDato('Técnico que resuelve', f2.tecnico, true));
         contenido.appendChild(crearDato('Supervisor', f2.supervisor, true));
         contenido.appendChild(crearDato('WO', f2.wo, true));
+        contenido.appendChild(crearDato('Estado V', f2.estadoV, true));
         contenido.appendChild(crearDato('Observación', f2.observaciones, true));
 
         div.appendChild(titulo);
@@ -234,11 +235,11 @@
         var acciones = document.createElement('div');
         acciones.className = 'orden-acciones';
 
-        var a = document.createElement('a');
-        a.className = 'btn-ver-orden';
-        a.href = '../procesamiento/hallazgo/hallazgo.html?id=' + encodeURIComponent(proceso.id);
-        a.textContent = 'Ver detalle';
-        acciones.appendChild(a);
+var a = document.createElement('a');
+    a.className = 'btn-ver-orden';
+    a.href = '../procesamiento/resultado/resultado.html?id=' + encodeURIComponent(proceso.id);
+    a.textContent = 'Ver detalle';
+    acciones.appendChild(a);
 
         article.appendChild(header);
         article.appendChild(fases);
