@@ -7,6 +7,8 @@
     var guardarModal = document.getElementById('guardar-modal');
     var btnGuardarClose = document.getElementById('btn-guardar-close');
     var btnVolverInicio = document.getElementById('btn-volver-inicio');
+    var modalTitulo = document.getElementById('guardar-modal-title');
+    var modalTexto = document.getElementById('guardar-modal-text');
 
     var ambitoFase1 = [
         { clave: 'quienReporta', etiqueta: 'Quien reporta' },
@@ -176,6 +178,19 @@
             var sesion = App.obtenerSesion();
             var esAdmin = sesion && sesion.usuario && sesion.usuario.rol === 'ADMIN';
 
+            modalTitulo.textContent = esAdmin ? 'Orden completada' : 'Hallazgo guardado';
+            modalTexto.textContent = esAdmin
+                ? 'La orden se marcó como completada y quedó registrada en el historial.'
+                : 'La orden se completó correctamente y quedó disponible para el administrador.';
+
+            function mostrarModalCompletada() {
+                abrirModal();
+            }
+
+            function continuarDesdeModal() {
+                window.location.href = '../../dashboard/dashboard.html';
+            }
+
             if (!proceso.fase2 && !esAdmin) {
                 window.location.href = id ? '../paso2/paso2.html?id=' + encodeURIComponent(id) : '../paso2/paso2.html';
                 return;
@@ -183,6 +198,8 @@
 
             if (esAdmin && !proceso.fase2) {
                 btnGuardar.hidden = true;
+            } else if (proceso.confirmado) {
+                btnGuardar.querySelector('.span').textContent = 'Completada';
             }
 
             renderResumen(proceso);
@@ -190,6 +207,7 @@
 
             btnGuardar.addEventListener('click', function () {
                 if (proceso.confirmado) {
+                    mostrarModalCompletada();
                     return;
                 }
                 btnGuardar.disabled = true;
@@ -198,7 +216,7 @@
                     proceso = actualizado;
                     btnGuardar.disabled = true;
                     btnGuardar.querySelector('.span').textContent = 'Completada';
-                    abrirModal();
+                    mostrarModalCompletada();
                 }).catch(function (error) {
                     btnGuardar.disabled = false;
                     btnGuardar.querySelector('.span').textContent = 'Guardar y completar';
@@ -206,9 +224,7 @@
                 });
             });
 
-            btnVolverInicio.addEventListener('click', function () {
-                window.location.href = '../../dashboard/dashboard.html';
-            });
+            btnVolverInicio.addEventListener('click', continuarDesdeModal);
             btnGuardarClose.addEventListener('click', cerrarModal);
             guardarModal.addEventListener('click', function (evt) {
                 if (evt.target === guardarModal) {
