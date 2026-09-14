@@ -236,6 +236,20 @@
     color: var(--gris-texto);
 }
 
+.orden-dato--destacado {
+    border-left: 3px solid var(--naranja);
+    padding-left: var(--spacing-sm);
+}
+
+.orden-dato--destacado dt {
+    color: var(--azul-borde);
+}
+
+.orden-dato--destacado dd {
+    color: var(--azul-principal);
+    font-weight: 600;
+}
+
 .orden-acciones {
     display: flex;
     justify-content: flex-end;

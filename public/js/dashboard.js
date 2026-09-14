@@ -341,9 +341,9 @@
         });
     }
 
-    function crearDatoMH(etiqueta, valor) {
+    function crearDatoMH(etiqueta, valor, destacado) {
         var dl = document.createElement('dl');
-        dl.className = 'mh-dato';
+        dl.className = 'mh-dato' + (destacado ? ' mh-dato--destacado' : '');
 
         var dt = document.createElement('dt');
         dt.textContent = etiqueta;
@@ -405,9 +405,10 @@
 
         var datos = document.createElement('div');
         datos.className = 'mh-datos';
+        var nombreAsignado = p.asignado_a ? p.asignado_a.nombre : '';
         datos.appendChild(crearDatoMH('Quien reporta', valorHallazgo(p, 'quienReporta')));
         datos.appendChild(crearDatoMH('Vulnerabilidad', valorHallazgo(p, 'vulnerabilidadesInfraestructura')));
-        datos.appendChild(crearDatoMH('Municipio', valorHallazgo(p, 'municipio')));
+        datos.appendChild(crearDatoMH('Asignado a', nombreAsignado, true));
         datos.appendChild(crearDatoMH('Prioridad', valorHallazgo(p, 'prioridad')));
 
         var acciones = document.createElement('div');

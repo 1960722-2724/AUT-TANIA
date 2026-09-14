@@ -115,10 +115,22 @@ function listarProcesos(PDO $pdo, string $whereSql = '', array $params = []): ar
         $fases2[$f['id_proceso']] = $f;
     }
 
+    $asignados = [];
+    $userIds = array_filter(array_unique(array_column($procesos, 'asignado_a_id_usuario')));
+    if ($userIds) {
+        $marcUser = implode(',', array_fill(0, count($userIds), '?'));
+        $stmt = $pdo->prepare("SELECT id_usuario, n_completo AS nombre, cedula FROM usuarios WHERE id_usuario IN ({$marcUser})");
+        $stmt->execute(array_values($userIds));
+        foreach ($stmt->fetchAll() as $u) {
+            $asignados[$u['id_usuario']] = $u;
+        }
+    }
+
     foreach ($procesos as &$p) {
         $p['hallazgo'] = $hallazgos[$p['id_proceso']] ?? null;
         $p['fase2'] = $fases2[$p['id_proceso']] ?? null;
         $p['imagen'] = $p['imagen_url'] ? ['url' => $p['imagen_url']] : null;
+        $p['asignado_a'] = $p['asignado_a_id_usuario'] ? ($asignados[$p['asignado_a_id_usuario']] ?? null) : null;
     }
     unset($p);
 

@@ -261,14 +261,14 @@
 
 .btn-cancelar {
     position: absolute;
-    top: 18px;
-    right: 18px;
+    top: 32px;
+    right: 24px;
     z-index: 5;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
+    width: 34px;
+    height: 34px;
     border: 2px solid rgba(255, 255, 255, 0.85);
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.22);
@@ -427,6 +427,20 @@
 
 .mh-dato dd.muted {
     color: var(--gris-texto);
+}
+
+.mh-dato--destacado {
+    border-left: 3px solid var(--naranja);
+    padding-left: var(--spacing-sm);
+}
+
+.mh-dato--destacado dt {
+    color: var(--azul-borde);
+}
+
+.mh-dato--destacado dd {
+    color: var(--azul-principal);
+    font-weight: 600;
 }
 
 .mh-acciones {

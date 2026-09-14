@@ -91,10 +91,12 @@
 
     function textoBusqueda(proceso) {
         var f2 = proceso.fase2 || {};
+        var asignado = proceso.asignado_a ? proceso.asignado_a.nombre : '';
         return normalizar([
             proceso.consecutivo,
             valorHallazgo(proceso, 'quienReporta'),
             valorHallazgo(proceso, 'vulnerabilidadesInfraestructura'),
+            asignado,
             f2.tecnico,
             f2.supervisor,
             f2.wo,
@@ -102,9 +104,9 @@
         ].join(' '));
     }
 
-    function crearDato(etiqueta, valor, muted) {
+    function crearDato(etiqueta, valor, muted, destacado) {
         var dl = document.createElement('dl');
-        dl.className = 'orden-dato';
+        dl.className = 'orden-dato' + (destacado ? ' orden-dato--destacado' : '');
 
         var dt = document.createElement('dt');
         dt.textContent = etiqueta;
@@ -130,9 +132,10 @@
 
         var contenido = document.createElement('div');
         contenido.className = 'orden-datos';
+        var nombreAsignado = proceso.asignado_a ? proceso.asignado_a.nombre : '';
         contenido.appendChild(crearDato('Técnico (reporta)', valorHallazgo(proceso, 'quienReporta'), true));
         contenido.appendChild(crearDato('Vulnerabilidad', valorHallazgo(proceso, 'vulnerabilidadesInfraestructura'), true));
-        contenido.appendChild(crearDato('Municipio', valorHallazgo(proceso, 'municipio'), true));
+        contenido.appendChild(crearDato('Asignado a', nombreAsignado, true, true));
         contenido.appendChild(crearDato('Prioridad', valorHallazgo(proceso, 'prioridad'), true));
 
         div.appendChild(titulo);
@@ -337,7 +340,7 @@
             'Escaneado',
             'Técnico (reporta)',
             'Vulnerabilidad',
-            'Municipio',
+            'Asignado a',
             'Prioridad',
             'Técnico que resuelve',
             'Supervisor',
@@ -367,7 +370,7 @@
                 p.escaneado ? 'Sí' : 'No',
                 valorHallazgo(p, 'quienReporta'),
                 valorHallazgo(p, 'vulnerabilidadesInfraestructura'),
-                valorHallazgo(p, 'municipio'),
+                p.asignado_a ? p.asignado_a.nombre : '',
                 valorHallazgo(p, 'prioridad'),
                 f2.tecnico,
                 f2.supervisor,
