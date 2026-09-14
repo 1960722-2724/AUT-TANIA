@@ -353,6 +353,19 @@
         });
     }
 
+    function exigirAsignacion() {
+        if (usuarioSeleccionado) {
+            return true;
+        }
+        asignarError.textContent = 'Debes asignar la orden a un técnico antes de continuar.';
+        asignarError.hidden = false;
+        if (assignCard && assignCard.scrollIntoView) {
+            assignCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        assignInput.focus();
+        return false;
+    }
+
     function cargarAsignacion(proceso) {
         if (!proceso || !proceso.asignado_a) { return; }
         var u = proceso.asignado_a;
@@ -427,9 +440,13 @@
             }
             if (id) {
                 btnVolver.href = '../../historial/historial.html';
+                btnVolver.addEventListener('click', function (e) {
+                    if (!exigirAsignacion()) { e.preventDefault(); }
+                });
             }
 
             btnGuardar.addEventListener('click', function () {
+                if (!exigirAsignacion()) { return; }
                 btnGuardar.disabled = true;
                 guardarOrden(proceso).then(function () {
                     btnGuardar.disabled = false;
@@ -505,6 +522,7 @@
         }
 
         contBtn.addEventListener('click', function () {
+            if (esAdmin && !exigirAsignacion()) { return; }
             window.location.href = destino;
         });
 

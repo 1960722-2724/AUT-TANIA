@@ -173,9 +173,16 @@
                 return;
             }
 
-            if (!proceso.fase2) {
+            var sesion = App.obtenerSesion();
+            var esAdmin = sesion && sesion.usuario && sesion.usuario.rol === 'ADMIN';
+
+            if (!proceso.fase2 && !esAdmin) {
                 window.location.href = id ? '../paso2/paso2.html?id=' + encodeURIComponent(id) : '../paso2/paso2.html';
                 return;
+            }
+
+            if (esAdmin && !proceso.fase2) {
+                btnGuardar.hidden = true;
             }
 
             renderResumen(proceso);
