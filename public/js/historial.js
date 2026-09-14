@@ -197,16 +197,23 @@
 
         badges.appendChild(badge1);
 
+        if (proceso.fase2) {
+            var badge2 = document.createElement('span');
+            badge2.className = 'badge badge-blue';
+            badge2.textContent = 'Fase 2';
+            badges.appendChild(badge2);
+        }
+
         if (pendiente) {
             var badgePend = document.createElement('span');
             badgePend.className = 'badge badge-orange';
             badgePend.textContent = 'Pendiente móvil';
             badges.appendChild(badgePend);
-        } else {
-            var badge2 = document.createElement('span');
-            badge2.className = 'badge badge-blue';
-            badge2.textContent = 'Fase 2';
-            badges.appendChild(badge2);
+        } else if (proceso.confirmado) {
+            var badgeOk = document.createElement('span');
+            badgeOk.className = 'badge badge-green';
+            badgeOk.textContent = 'Completada';
+            badges.appendChild(badgeOk);
         }
 
         badges.appendChild(fecha);
@@ -336,8 +343,19 @@
             'Supervisor',
             'WO',
             'Estado V',
-            'Observación'
+            'Observación',
+            'Estado de la orden'
         ];
+
+        function estadoOrden(proceso) {
+            if (proceso.confirmado) {
+                return 'Completada';
+            }
+            if (proceso.fase2) {
+                return 'En gestión';
+            }
+            return 'Pendiente móvil';
+        }
 
         var filas = registros.map(function (p) {
             var h = p.hallazgo || {};
@@ -355,7 +373,8 @@
                 f2.supervisor,
                 f2.wo,
                 f2.estadoV,
-                f2.observaciones
+                f2.observaciones,
+                estadoOrden(p)
             ];
         });
 
@@ -395,10 +414,15 @@
             return;
         }
 
-        procesos = App.obtenerHistorial();
         llenarSelectMes();
         llenarSelectDia();
-        filtrarYRender();
+
+        App.obtenerHistorial().then(function (lista) {
+            procesos = lista;
+            filtrarYRender();
+        }).catch(function (error) {
+            mostrarAlert('error', error.message || 'No se pudo cargar el historial.');
+        });
     }
 
     function cerrarSesion() {

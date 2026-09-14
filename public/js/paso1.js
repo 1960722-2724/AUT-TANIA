@@ -104,20 +104,22 @@
     function inicializar() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
-        var proceso = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
+        var promesa = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
 
-        if (!proceso) {
-            mostrarAlert('error', id ? 'No se encontró la orden solicitada.' : 'No hay un proceso activo. Vuelve al Dashboard y sube un PDF.');
-            contBtn.disabled = true;
-            return;
-        }
+        promesa.then(function (proceso) {
+            if (!proceso) {
+                mostrarAlert('error', id ? 'No se encontró la orden solicitada.' : 'No hay un proceso activo. Vuelve al Dashboard y sube un PDF.');
+                contBtn.disabled = true;
+                return;
+            }
 
-        renderInfo(proceso);
-        renderImagen(proceso);
-        renderTexto(proceso);
+            renderInfo(proceso);
+            renderImagen(proceso);
+            renderTexto(proceso);
 
-        contBtn.addEventListener('click', function () {
-            window.location.href = id ? '../paso2/paso2.html?id=' + id : '../paso2/paso2.html';
+            contBtn.addEventListener('click', function () {
+                window.location.href = id ? '../paso2/paso2.html?id=' + id : '../paso2/paso2.html';
+            });
         });
     }
 

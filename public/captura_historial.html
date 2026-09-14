@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        html, body { margin: 0; padding: 0; background: #F3F5F8; }
+        iframe { display: block; width: 100%; height: 100vh; border: 0; }
+    </style>
+</head>
+<body>
+    <script>
+        localStorage.setItem('autn_sesion', JSON.stringify({
+            usuario: { nombre: 'Ana Torres', rol: 'ADMIN' }
+        }));
+        var fecha = new Date();
+        fecha.setMonth(fecha.getMonth() - 1);
+        var procesos = [];
+        for (var i = 1; i <= 6; i++) {
+            procesos.push({
+                id: 'p' + i,
+                consecutivo: String(i).padStart(4, '0'),
+                nombre_archivo: 'hallazgo_' + i + '.pdf',
+                escaneado: i <= 3,
+                fecha: new Date(fecha.getFullYear(), fecha.getMonth(), i * 2).toISOString(),
+                hallazgo: {
+                    quienReporta: 'Carlos Méndez',
+                    vulnerabilidadesInfraestructura: 'Vulnerabilidad tipo A',
+                    municipio: i % 2 ? 'Villavicencio' : 'Acacías',
+                    prioridad: i % 2 ? 'Alta' : 'Media'
+                },
+                fase2: i <= 3 ? null : {
+                    tecnico: 'Luis Pérez',
+                    supervisor: 'Supervisor A',
+                    wo: 'WO-000' + i,
+                    observaciones: 'Atendido correctamente'
+                }
+            });
+        }
+        localStorage.setItem('autn_procesos', JSON.stringify(procesos));
+        var frame = document.createElement('iframe');
+        frame.src = 'pages/historial/historial.html';
+        document.body.appendChild(frame);
+    </script>
+</body>
+</html>

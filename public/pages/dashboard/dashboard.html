@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../css/variables.css?v=3">
-    <link rel="stylesheet" href="../../css/base.css?v=3">
-    <link rel="stylesheet" href="../../css/components.css?v=3">
-    <link rel="stylesheet" href="../../css/layout.css?v=3">
-    <link rel="stylesheet" href="../../css/dashboard.css?v=3">
+    <link rel="stylesheet" href="../../css/variables.css?v=6">
+    <link rel="stylesheet" href="../../css/base.css?v=6">
+    <link rel="stylesheet" href="../../css/components.css?v=6">
+    <link rel="stylesheet" href="../../css/layout.css?v=6">
+    <link rel="stylesheet" href="../../css/dashboard.css?v=6">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
@@ -99,6 +99,25 @@
 
             <p class="dz-error" id="dz-error" role="alert" hidden></p>
 
+            <div id="mis-hallazgos" hidden>
+                <div id="mh-alert" class="alert" role="alert" hidden></div>
+
+                <section class="page-card">
+                    <header class="page-card-header">
+                        <h2 class="page-card-title">Mis hallazgos</h2>
+                        <p class="page-card-subtitle">
+                            Órdenes asignadas para tu gestión en campo. Abre cada hallazgo para completar tu ficha.
+                        </p>
+                    </header>
+                    <div class="card-body">
+                        <div class="mh-lista" id="mh-lista"></div>
+                        <p class="empty-text" id="mh-vacio" hidden>
+                            No tienes hallazgos asignados todavía.
+                        </p>
+                    </div>
+                </section>
+            </div>
+
             <div class="dz-modal" id="dz-modal" hidden>
                 <div class="dz-modal-backdrop" aria-hidden="true"></div>
                 <div class="dz-modal-card" role="dialog" aria-modal="true" aria-label="Proceso del documento">
@@ -151,7 +170,7 @@
         </main>
     </div>
 
-    <script src="../../js/app.js?v=3"></script>
-    <script src="../../js/dashboard.js?v=3"></script>
+    <script src="../../js/app.js?v=6"></script>
+    <script src="../../js/dashboard.js?v=6"></script>
 </body>
 </html>

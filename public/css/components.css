@@ -289,6 +289,12 @@
     color: var(--naranja-oscuro);
 }
 
+.badge-green {
+    background-color: rgba(40, 167, 69, 0.12);
+    border-color: #28A745;
+    color: #1E7E34;
+}
+
 .modal-backdrop {
     position: fixed;
     inset: 0;

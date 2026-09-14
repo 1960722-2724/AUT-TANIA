@@ -22,6 +22,9 @@
     var dzDone = document.getElementById('dz-done');
     var btnVerPdf = document.getElementById('btn-ver-pdf');
     var btnCancelar = document.getElementById('btn-cancelar');
+    var misHallazgos = document.getElementById('mis-hallazgos');
+    var mhLista = document.getElementById('mh-lista');
+    var mhVacio = document.getElementById('mh-vacio');
 
     var CIRCUNFERENCIA = 2 * Math.PI * 52;
 
@@ -227,9 +230,12 @@
                 return;
             }
 
-            actualizarProgreso(95, 'Finalizando...');
-            App.guardarProceso(res);
-            setTimeout(finalizarCarga, 600);
+            actualizarProgreso(95, 'Guardando en la base de datos...');
+            App.guardarProceso(res).then(function () {
+                setTimeout(finalizarCarga, 600);
+            }).catch(function (error) {
+                mostrarError(error.message || 'No se pudo guardar el proceso.');
+            });
         });
 
         peticionXhr.addEventListener('error', function () {
@@ -314,6 +320,145 @@
         window.location.href = '../auth/login.html';
     }
 
+    function valorHallazgo(proceso, clave) {
+        var h = proceso.hallazgo || {};
+        var v = h[clave];
+        if (v === undefined || v === null) {
+            return '';
+        }
+        return String(v).trim();
+    }
+
+    function formatearFecha(iso) {
+        var d = new Date(iso);
+        if (isNaN(d.getTime())) {
+            return '—';
+        }
+        return d.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
+    function crearDatoMH(etiqueta, valor) {
+        var dl = document.createElement('dl');
+        dl.className = 'mh-dato';
+
+        var dt = document.createElement('dt');
+        dt.textContent = etiqueta;
+
+        var dd = document.createElement('dd');
+        dd.textContent = valor || '—';
+        if (!valor) {
+            dd.className = 'muted';
+        }
+
+        dl.appendChild(dt);
+        dl.appendChild(dd);
+        return dl;
+    }
+
+    function estadoProceso(p) {
+        if (p.confirmado) {
+            return 'Completada';
+        }
+        if (p.fase2) {
+            return 'En gestión';
+        }
+        return 'Pendiente móvil';
+    }
+
+    function crearTarjetaMH(p) {
+        var estado = estadoProceso(p);
+        var card = document.createElement('article');
+        card.className = 'mh-card' + (estado === 'Completada' ? ' completada' : '');
+
+        var header = document.createElement('div');
+        header.className = 'mh-header';
+
+        var cons = document.createElement('span');
+        cons.className = 'mh-consecutivo' + (estado === 'Pendiente móvil' ? ' pendiente' : '');
+        cons.textContent = '#' + p.consecutivo;
+
+        var archivo = document.createElement('span');
+        archivo.className = 'mh-archivo';
+        archivo.textContent = p.nombre_archivo || 'PDF';
+        archivo.title = archivo.textContent;
+
+        var badges = document.createElement('div');
+        badges.className = 'mh-badges';
+
+        var badge = document.createElement('span');
+        badge.className = 'badge ' + (estado === 'Completada' ? 'badge-green' : 'badge-orange');
+        badge.textContent = estado;
+        badges.appendChild(badge);
+
+        var fecha = document.createElement('span');
+        fecha.className = 'mh-fecha';
+        fecha.textContent = formatearFecha(p.fecha);
+        badges.appendChild(fecha);
+
+        header.appendChild(cons);
+        header.appendChild(archivo);
+        header.appendChild(badges);
+
+        var datos = document.createElement('div');
+        datos.className = 'mh-datos';
+        datos.appendChild(crearDatoMH('Quien reporta', valorHallazgo(p, 'quienReporta')));
+        datos.appendChild(crearDatoMH('Vulnerabilidad', valorHallazgo(p, 'vulnerabilidadesInfraestructura')));
+        datos.appendChild(crearDatoMH('Municipio', valorHallazgo(p, 'municipio')));
+        datos.appendChild(crearDatoMH('Prioridad', valorHallazgo(p, 'prioridad')));
+
+        var acciones = document.createElement('div');
+        acciones.className = 'mh-acciones';
+        var a = document.createElement('a');
+        a.className = 'btn btn-primary';
+        if (p.fase2 || p.confirmado) {
+            a.href = '../procesamiento/resultado/resultado.html?id=' + encodeURIComponent(p.id);
+            a.textContent = 'Ver resumen';
+        } else {
+            a.href = '../procesamiento/paso2/paso2.html?id=' + encodeURIComponent(p.id);
+            a.textContent = 'Llenar ficha (Paso 2)';
+        }
+        acciones.appendChild(a);
+
+        card.appendChild(header);
+        card.appendChild(datos);
+        card.appendChild(acciones);
+
+        return card;
+    }
+
+    function renderMisHallazgos() {
+        App.obtenerMisHallazgos().then(function (procesos) {
+            mhLista.innerHTML = '';
+            if (procesos.length === 0) {
+                mhLista.hidden = true;
+                mhVacio.hidden = false;
+                return;
+            }
+            mhLista.hidden = false;
+            mhVacio.hidden = true;
+            procesos.forEach(function (p) {
+                mhLista.appendChild(crearTarjetaMH(p));
+            });
+        });
+    }
+
+    function mostrarModoUsuario() {
+        dropzone.hidden = true;
+        dzError.hidden = true;
+        dzModal.hidden = true;
+        misHallazgos.hidden = false;
+        renderMisHallazgos();
+    }
+
+    function mostrarModoAdmin() {
+        misHallazgos.hidden = true;
+        dropzone.hidden = false;
+    }
+
     getEl('logout-btn').addEventListener('click', cerrarSesion);
     btnVerPdf.addEventListener('click', verPdfProcesado);
     btnCancelar.addEventListener('click', cancelarCarga);
@@ -321,4 +466,12 @@
     mostrarUsuario();
     mostrarFecha();
     configurarDropzone();
+
+    var sesion = App.obtenerSesion();
+    var rol = sesion && sesion.usuario ? sesion.usuario.rol : '';
+    if (rol === 'USUARIO') {
+        mostrarModoUsuario();
+    } else {
+        mostrarModoAdmin();
+    }
 })();

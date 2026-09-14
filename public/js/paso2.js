@@ -21,11 +21,13 @@
     function obtenerProcesoActual() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
-        var proceso = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
-        if (proceso && proceso.id) {
-            procesoId = proceso.id;
-        }
-        return proceso;
+        var promesa = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
+        return promesa.then(function (proceso) {
+            if (proceso && proceso.id) {
+                procesoId = proceso.id;
+            }
+            return proceso;
+        });
     }
 
     var campos = [
@@ -106,6 +108,26 @@
         alertBox.className = 'alert';
     }
 
+    function generarMiniatura(dataUrl, max) {
+        return new Promise(function (resolve) {
+            var img = new Image();
+            img.onload = function () {
+                var escala = Math.min(1, max / Math.max(img.width, img.height));
+                var w = Math.max(1, Math.round(img.width * escala));
+                var h = Math.max(1, Math.round(img.height * escala));
+                var canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', 0.72));
+            };
+            img.onerror = function () {
+                resolve(dataUrl);
+            };
+            img.src = dataUrl;
+        });
+    }
+
     function manejarFoto(archivo) {
         if (!archivo) {
             return;
@@ -121,9 +143,13 @@
 
         var reader = new FileReader();
         reader.onload = function (e) {
+            archivoFoto.fotoData = e.target.result;
             photoPreviewImg.src = e.target.result;
             photoEmpty.hidden = true;
             photoPreview.hidden = false;
+            generarMiniatura(e.target.result, 480).then(function (mini) {
+                archivoFoto.fotoData = mini;
+            });
         };
         reader.readAsDataURL(archivo);
     }
@@ -139,21 +165,28 @@
     }
 
     function guardar() {
-        return new Promise(function (resolve) {
-            setTimeout(function () {
-                var datos = {
-                    supervisor: getEl('supervisor').value.trim(),
-                    wo: getEl('wo').value.trim(),
-                    tecnico: getEl('tecnico').value.trim(),
-                    observaciones: getEl('observaciones').value.trim(),
-                    estadoV: getEl('estado').value,
-                    foto: archivoFoto ? true : false
-                };
-                if (procesoId) {
-                    App.guardarFase2(procesoId, datos);
-                }
-                resolve(datos);
-            }, 400);
+        var promesaAnterior = procesoId ? App.obtenerProcesoPorId(procesoId) : Promise.resolve(null);
+
+        return promesaAnterior.then(function (proc) {
+            var anterior = proc && proc.fase2 ? proc.fase2 : null;
+            var fotoData = archivoFoto && archivoFoto.fotoData
+                ? archivoFoto.fotoData
+                : (anterior && anterior.fotoData) || '';
+            var datos = {
+                supervisor: getEl('supervisor').value.trim(),
+                wo: getEl('wo').value.trim(),
+                tecnico: getEl('tecnico').value.trim(),
+                observaciones: getEl('observaciones').value.trim(),
+                estadoV: getEl('estado').value,
+                foto: !!archivoFoto || !!(anterior && anterior.foto),
+                fotoData: fotoData
+            };
+            if (!procesoId) {
+                return datos;
+            }
+            return App.guardarFase2(procesoId, datos).then(function () {
+                return datos;
+            });
         });
     }
 
@@ -169,9 +202,11 @@
         submitBtn.textContent = 'Guardando...';
 
         guardar().then(function () {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Guardar';
-            mostrarAlert('success', 'Datos guardados correctamente.');
+            var destino = '../resultado/resultado.html';
+            if (procesoId) {
+                destino += '?id=' + encodeURIComponent(procesoId);
+            }
+            window.location.href = destino;
         });
     }
 
@@ -255,5 +290,5 @@
     getEl('logout-btn').addEventListener('click', cerrarSesion);
 
     mostrarUsuario();
-    precargarFase2(obtenerProcesoActual());
+    obtenerProcesoActual().then(precargarFase2);
 })();

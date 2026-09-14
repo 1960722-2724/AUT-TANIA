@@ -2,28 +2,34 @@
     'use strict';
 
     var SESSION_KEY = 'autn_sesion';
-    var PROCESO_KEY = 'autn_proceso_actual';
-    var HISTORIAL_KEY = 'autn_procesos';
+    var PROCESO_ACTUAL_KEY = 'autn_proceso_actual_id';
 
-    var mockData = {
-        usuarios: [
-            { id: 1, nombre: 'Carlos Mendoza', cedula: '103245678', rol: 'USUARIO' },
-            { id: 2, nombre: 'Luisa Fernanda Rojas', cedula: '112224578', rol: 'USUARIO' },
-            { id: 3, nombre: 'Andrés Gutiérrez', cedula: '102448913', rol: 'USUARIO' },
-            { id: 4, nombre: 'María Camila Torres', cedula: '100245698', rol: 'USUARIO' },
-            { id: 5, nombre: 'Jorge Luis Ramírez', cedula: '79845621', rol: 'USUARIO' },
-            { id: 6, nombre: 'Ana Sofía Herrera', cedula: '104562387', rol: 'USUARIO' },
-            { id: 7, nombre: 'Pedro Antonio Castillo', cedula: '103546892', rol: 'USUARIO' },
-            { id: 8, nombre: 'Valentina Gómez', cedula: '105467891', rol: 'USUARIO' },
-            { id: 9, nombre: 'Diego Alejandro Vega', cedula: '100789456', rol: 'USUARIO' },
-            { id: 10, nombre: 'Sara Isabel Morales', cedula: '110245789', rol: 'USUARIO' },
-            { id: 11, nombre: 'Felipe Rincón', cedula: '79856123', rol: 'USUARIO' },
-            { id: 12, nombre: 'Paula Andrea Salazar', cedula: '103098745', rol: 'USUARIO' },
-            { id: 13, nombre: 'Eduardo Pérez', cedula: '98456123', rol: 'ADMIN' }
-        ],
-        procesos: [],
-        resultadoPDF: {}
-    };
+    var API_BASE = '/api/pdf/';
+
+    function apiFetch(ruta, opciones) {
+        return fetch(API_BASE + ruta, opciones).then(function (resp) {
+            return resp.json().then(function (datos) {
+                if (!resp.ok || !datos || !datos.ok) {
+                    throw new Error((datos && datos.error) || 'Error de comunicación con el servidor.');
+                }
+                return datos;
+            });
+        });
+    }
+
+    function apiPost(ruta, body) {
+        return apiFetch(ruta, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+    }
+
+    function apiDelete(ruta) {
+        return apiFetch(ruta, { method: 'DELETE' });
+    }
+
+    // --- Sesión (token de usuario autenticado, no es "la base de datos") ---
 
     function obtenerSesion() {
         var raw = localStorage.getItem(SESSION_KEY);
@@ -36,156 +42,210 @@
 
     function cerrarSesion() {
         localStorage.removeItem(SESSION_KEY);
+        sessionStorage.removeItem(PROCESO_ACTUAL_KEY);
     }
 
-    function generarConsecutivo() {
-        var historial = obtenerHistorial();
-        var max = 0;
-        historial.forEach(function (p) {
-            var n = parseInt(p.consecutivo, 10);
-            if (!isNaN(n) && n > max) {
-                max = n;
-            }
-        });
-        var s = String(max + 1);
-        while (s.length < 4) {
-            s = '0' + s;
-        }
-        return s;
-    }
-
-    function prepararProceso(proceso) {
-        if (!proceso) {
-            return proceso;
-        }
-        if (!proceso.id) {
-            proceso.id = 'proc_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-        }
-        if (!proceso.fecha) {
-            proceso.fecha = new Date().toISOString();
-        }
-        if (!proceso.nombre_archivo) {
-            proceso.nombre_archivo = proceso.archivo_original || proceso.archivo || 'Sin nombre';
-        }
-        if (!proceso.consecutivo) {
-            proceso.consecutivo = generarConsecutivo();
-        }
-        if (!proceso.estado) {
-            proceso.estado = 'procesado';
-        }
-        if (!proceso.usuario) {
-            var sesion = obtenerSesion();
-            var u = sesion && sesion.usuario ? sesion.usuario : null;
-            proceso.usuario = u
-                ? { nombre: u.nombre, cedula: u.cedula, rol: u.rol }
-                : { nombre: 'Invitado', cedula: '', rol: '' };
-        }
-        return proceso;
-    }
-
-    function quitarDuplicados(lista) {
-        var vistos = {};
-        return lista.filter(function (p) {
-            if (!p || !p.id || vistos[p.id]) {
-                return false;
-            }
-            vistos[p.id] = true;
-            return true;
+    function iniciarSesion(cedula, password) {
+        return apiPost('login.php', { cedula: cedula, password: password }).then(function (res) {
+            var sesion = { usuario: res.usuario, iniciada: new Date().toISOString() };
+            crearSesion(sesion);
+            return sesion;
         });
     }
 
-    function guardarProceso(proceso) {
-        proceso = prepararProceso(proceso);
-        sessionStorage.setItem(PROCESO_KEY, JSON.stringify(proceso));
+    // --- Mapeo de campos hallazgo/fase2 (camelCase en el frontend <-> snake_case en la BD) ---
 
-        var historial = obtenerHistorial();
-        historial.unshift(proceso);
-        localStorage.setItem(HISTORIAL_KEY, JSON.stringify(quitarDuplicados(historial)));
-        return proceso;
+    var MAPA_HALLAZGO = {
+        quienReporta: 'quien_reporta',
+        fechaHora: 'fecha_hora',
+        aliado: 'aliado',
+        regional: 'regional',
+        departamento: 'departamento',
+        municipio: 'municipio',
+        barrio: 'barrio',
+        direccion: 'direccion',
+        puntoReferencia: 'punto_referencia',
+        coordenadas: 'coordenadas',
+        duenoInfraestructura: 'dueno_infraestructura',
+        codigoPacvi: 'codigo_pacvi',
+        vulnerabilidadesInfraestructura: 'vulnerabilidades_infraestructura',
+        estadoInfraestructura: 'estado_infraestructura',
+        vulnerabilidad: 'vulnerabilidad',
+        asociarOT: 'asociar_ot',
+        prioridad: 'prioridad',
+        observaciones: 'observaciones'
+    };
+
+    var MAPA_FASE2 = {
+        supervisor: 'supervisor',
+        wo: 'wo',
+        tecnico: 'tecnico',
+        estadoV: 'estado_v',
+        observaciones: 'observaciones'
+    };
+
+    function convertirAApi(objeto, mapa) {
+        var resultado = {};
+        Object.keys(mapa).forEach(function (claveJs) {
+            if (objeto[claveJs] !== undefined) {
+                resultado[mapa[claveJs]] = objeto[claveJs];
+            }
+        });
+        return resultado;
     }
 
-    function guardarEnHistorial(proceso) {
-        proceso = prepararProceso(proceso);
-        var historial = obtenerHistorial();
-        historial.unshift(proceso);
-        localStorage.setItem(HISTORIAL_KEY, JSON.stringify(quitarDuplicados(historial)));
-        return proceso;
-    }
-
-    function obtenerProceso() {
-        var raw = sessionStorage.getItem(PROCESO_KEY);
-        return raw ? JSON.parse(raw) : null;
-    }
-
-    function obtenerHistorial() {
-        var raw = localStorage.getItem(HISTORIAL_KEY);
-        try {
-            return raw ? JSON.parse(raw) : [];
-        } catch (e) {
-            return [];
+    function convertirDeApi(fila, mapa) {
+        if (!fila) {
+            return null;
         }
+        var resultado = {};
+        Object.keys(mapa).forEach(function (claveJs) {
+            resultado[claveJs] = fila[mapa[claveJs]];
+        });
+        return resultado;
+    }
+
+    function normalizarFecha(mysqlDatetime) {
+        if (!mysqlDatetime) {
+            return null;
+        }
+        return mysqlDatetime.replace(' ', 'T');
+    }
+
+    function normalizarProceso(fila) {
+        if (!fila) {
+            return null;
+        }
+        var fase2 = convertirDeApi(fila.fase2, MAPA_FASE2);
+        if (fase2) {
+            fase2.foto = !!(fila.fase2 && fila.fase2.tiene_foto);
+            fase2.fotoData = (fila.evidencias && fila.evidencias.length)
+                ? fila.evidencias[fila.evidencias.length - 1]
+                : '';
+        }
+
+        return {
+            id: fila.id_proceso,
+            consecutivo: fila.consecutivo,
+            nombre_archivo: fila.nombre_archivo,
+            archivo_original: fila.archivo_original,
+            escaneado: !!fila.escaneado,
+            paginas: fila.paginas,
+            fecha: normalizarFecha(fila.creado_en),
+            confirmado: !!fila.confirmado,
+            fechaConfirmacion: normalizarFecha(fila.fecha_confirmacion),
+            registro: fila.registro || null,
+            imagen: fila.imagen || null,
+            texto: fila.texto || [],
+            asignado_a: fila.asignado_a || null,
+            hallazgo: convertirDeApi(fila.hallazgo, MAPA_HALLAZGO)
+        };
+    }
+
+    // --- Procesos (reemplaza el historial que antes vivía en localStorage) ---
+
+    function guardarProceso(resultadoSubida) {
+        var sesion = obtenerSesion();
+        var body = {
+            nombre_archivo: resultadoSubida.archivo_original || resultadoSubida.archivo || 'Sin nombre',
+            archivo_original: resultadoSubida.archivo_original || resultadoSubida.archivo || null,
+            escaneado: !!resultadoSubida.escaneado,
+            paginas: resultadoSubida.paginas || null,
+            id_usuario_creador: sesion && sesion.usuario ? sesion.usuario.id : null,
+            imagen: resultadoSubida.imagen || null,
+            registro: resultadoSubida.registro || null,
+            texto: resultadoSubida.texto || [],
+            hallazgo: convertirAApi(resultadoSubida.hallazgo || {}, MAPA_HALLAZGO)
+        };
+
+        return apiPost('procesos.php', body).then(function (res) {
+            sessionStorage.setItem(PROCESO_ACTUAL_KEY, res.proceso.id_proceso);
+            return normalizarProceso(res.proceso);
+        });
     }
 
     function obtenerProcesoPorId(id) {
-        var historial = obtenerHistorial();
-        for (var i = 0; i < historial.length; i++) {
-            if (historial[i].id === id) {
-                return historial[i];
-            }
+        return apiFetch('procesos.php?id=' + encodeURIComponent(id)).then(function (res) {
+            return normalizarProceso(res.proceso);
+        }).catch(function () {
+            return null;
+        });
+    }
+
+    function obtenerProceso() {
+        var id = sessionStorage.getItem(PROCESO_ACTUAL_KEY);
+        if (!id) {
+            return Promise.resolve(null);
         }
-        return null;
+        return obtenerProcesoPorId(id);
+    }
+
+    function obtenerHistorial() {
+        return apiFetch('procesos.php').then(function (res) {
+            return res.procesos.map(normalizarProceso);
+        });
     }
 
     function actualizarProceso(proceso) {
-        if (!proceso || !proceso.id) {
-            return proceso;
-        }
+        var body = { _accion: 'actualizar' };
 
-        var historial = obtenerHistorial();
-        for (var i = 0; i < historial.length; i++) {
-            if (historial[i].id === proceso.id) {
-                historial[i] = proceso;
-                break;
+        ['escaneado', 'confirmado'].forEach(function (campo) {
+            if (proceso[campo] !== undefined) {
+                body[campo] = proceso[campo] ? 1 : 0;
+            }
+        });
+        if (proceso.fechaConfirmacion) {
+            body.fecha_confirmacion = proceso.fechaConfirmacion.replace('T', ' ').slice(0, 19);
+        }
+        if (proceso.asignado_a !== undefined) {
+            body.asignado_a_id_usuario = proceso.asignado_a ? proceso.asignado_a.id : null;
+        }
+        if (proceso.hallazgo) {
+            body.hallazgo = convertirAApi(proceso.hallazgo, MAPA_HALLAZGO);
+        }
+        if (proceso.fase2) {
+            body.fase2 = convertirAApi(proceso.fase2, MAPA_FASE2);
+            body.fase2.tiene_foto = proceso.fase2.foto ? 1 : 0;
+            if (proceso.fase2.fotoData) {
+                body.evidencia_tipo = 'movil';
+                body.evidencia_ruta = proceso.fase2.fotoData;
             }
         }
-        localStorage.setItem(HISTORIAL_KEY, JSON.stringify(historial));
 
-        var actual = obtenerProceso();
-        if (actual && actual.id === proceso.id) {
-            sessionStorage.setItem(PROCESO_KEY, JSON.stringify(proceso));
-        }
-
-        return proceso;
+        return apiPost('procesos.php?id=' + encodeURIComponent(proceso.id), body).then(function (res) {
+            return normalizarProceso(res.proceso);
+        });
     }
 
     function guardarFase2(procesoId, datos) {
-        var proceso = obtenerProcesoPorId(procesoId);
-        if (!proceso) {
-            return null;
-        }
-        proceso.fase2 = datos;
+        return actualizarProceso({ id: procesoId, fase2: datos });
+    }
+
+    function confirmarProceso(proceso) {
+        proceso.confirmado = true;
+        proceso.fechaConfirmacion = new Date().toISOString();
         return actualizarProceso(proceso);
     }
 
+    function obtenerMisHallazgos() {
+        var sesion = obtenerSesion();
+        var idUsuario = sesion && sesion.usuario ? sesion.usuario.id : null;
+        if (!idUsuario) {
+            return Promise.resolve([]);
+        }
+        return apiFetch('procesos.php?asignado_a=' + encodeURIComponent(idUsuario)).then(function (res) {
+            return res.procesos.map(normalizarProceso);
+        });
+    }
+
     function obtenerUsuariosMoviles() {
-        return new Promise(function (resolve) {
-            setTimeout(function () {
-                var lista = mockData.usuarios.filter(function (u) {
-                    return u.rol === 'USUARIO';
-                });
-                resolve(lista.map(function (u) {
-                    return { id: u.id, nombre: u.nombre, cedula: u.cedula, rol: u.rol };
-                }));
-            }, 200);
+        return apiFetch('usuarios_movil.php').then(function (res) {
+            return res.usuarios;
         });
     }
 
     function eliminarProceso(id) {
-        var historial = obtenerHistorial();
-        var nuevo = historial.filter(function (p) {
-            return p.id !== id;
-        });
-        localStorage.setItem(HISTORIAL_KEY, JSON.stringify(nuevo));
+        return apiDelete('procesos.php?id=' + encodeURIComponent(id));
     }
 
     var ICONOS = {
@@ -320,17 +380,18 @@
     }
 
     window.App = {
-        mockData: mockData,
+        iniciarSesion: iniciarSesion,
         obtenerSesion: obtenerSesion,
         crearSesion: crearSesion,
         cerrarSesion: cerrarSesion,
         guardarProceso: guardarProceso,
         obtenerProceso: obtenerProceso,
-        guardarEnHistorial: guardarEnHistorial,
         obtenerHistorial: obtenerHistorial,
         obtenerProcesoPorId: obtenerProcesoPorId,
         actualizarProceso: actualizarProceso,
         guardarFase2: guardarFase2,
+        confirmarProceso: confirmarProceso,
+        obtenerMisHallazgos: obtenerMisHallazgos,
         obtenerUsuariosMoviles: obtenerUsuariosMoviles,
         eliminarProceso: eliminarProceso,
         iniciarLayout: iniciarLayout

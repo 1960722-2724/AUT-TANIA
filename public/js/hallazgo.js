@@ -333,9 +333,11 @@
         if (usuario) {
             proceso.asignado_a = { id: usuario.id, nombre: usuario.nombre, cedula: usuario.cedula };
         } else {
-            delete proceso.asignado_a;
+            proceso.asignado_a = null;
         }
-        App.actualizarProceso(proceso);
+        App.actualizarProceso(proceso).catch(function (error) {
+            mostrarAlert('error', error.message || 'No se pudo guardar la asignación.');
+        });
     }
 
     function cargarAsignacion(proceso) {
@@ -396,9 +398,9 @@
 
     function guardarOrden(proceso) {
         if (proceso && proceso.id) {
-            App.actualizarProceso(proceso);
+            return App.actualizarProceso(proceso);
         }
-        return Promise.resolve();
+        return Promise.resolve(proceso);
     }
 
     function configurarAcciones(proceso, esAdmin, id) {
@@ -421,6 +423,8 @@
                 });
             });
         } else {
+            btnGuardar.hidden = true;
+
             var volverUsuarioSpan = btnVolver.querySelector('.span');
             if (volverUsuarioSpan) {
                 volverUsuarioSpan.textContent = id ? 'Volver al historial' : 'Volver al Dashboard';
@@ -442,8 +446,14 @@
     function inicializar() {
         var params = new URLSearchParams(window.location.search);
         var id = params.get('id');
-        var proceso = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
+        var promesa = id ? App.obtenerProcesoPorId(id) : App.obtenerProceso();
 
+        promesa.then(function (proceso) {
+            inicializarConProceso(proceso, id);
+        });
+    }
+
+    function inicializarConProceso(proceso, id) {
         if (!proceso) {
             mostrarAlert('error', id ? 'No se encontró la orden solicitada.' : 'No hay un proceso activo. Vuelve al Dashboard y sube un PDF.');
             contBtn.disabled = true;

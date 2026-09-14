@@ -84,30 +84,12 @@
         return valido;
     }
 
-    function login(cedula, password, rol) {
-        return new Promise(function (resolve) {
-            setTimeout(function () {
-                var sesion = {
-                    usuario: {
-                        nombre: rol === 'ADMIN' ? 'Administrador Demo' : 'Usuario Demo',
-                        cedula: cedula,
-                        rol: rol
-                    },
-                    iniciada: new Date().toISOString()
-                };
-                App.crearSesion(sesion);
-                resolve(sesion);
-            }, 400);
-        });
-    }
-
     function manejarEnvio(evt) {
         evt.preventDefault();
         ocultarAlert();
 
         var cedula = cedulaInput.value.trim();
         var password = passwordInput.value;
-        var rol = rolActual;
 
         if (!validar(cedula, password)) {
             return;
@@ -116,7 +98,7 @@
         loginBtn.disabled = true;
         loginBtn.textContent = 'Ingresando...';
 
-        login(cedula, password, rol).then(function () {
+        App.iniciarSesion(cedula, password).then(function () {
             loginBtn.disabled = false;
             loginBtn.textContent = 'Iniciar sesión';
             mostrarAlert('success', 'Sesión iniciada correctamente.');
@@ -124,6 +106,10 @@
             window.setTimeout(function () {
                 window.location.href = '../dashboard/dashboard.html';
             }, 600);
+        }).catch(function (error) {
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Iniciar sesión';
+            mostrarAlert('error', error.message || 'No se pudo iniciar sesión.');
         });
     }
 
