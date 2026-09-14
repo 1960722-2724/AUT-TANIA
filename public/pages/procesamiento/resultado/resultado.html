@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../../css/variables.css?v=6">
-    <link rel="stylesheet" href="../../../css/base.css?v=6">
-    <link rel="stylesheet" href="../../../css/components.css?v=6">
-    <link rel="stylesheet" href="../../../css/layout.css?v=6">
-    <link rel="stylesheet" href="../../../css/resultado.css?v=6">
+    <link rel="stylesheet" href="../../../css/variables.css?v=7">
+    <link rel="stylesheet" href="../../../css/base.css?v=7">
+    <link rel="stylesheet" href="../../../css/components.css?v=7">
+    <link rel="stylesheet" href="../../../css/layout.css?v=7">
+    <link rel="stylesheet" href="../../../css/resultado.css?v=7">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
@@ -82,7 +82,8 @@
                         </p>
                     </div>
                     <div class="hero-badges">
-                        <span class="badge badge-blue">Fase 1 + Fase 2</span>
+                        <span class="badge badge-blue">Fase 1</span>
+                        <span class="badge badge-fase2">Fase 2</span>
                         <span class="badge badge-orange" id="resumen-estado-badge">Pendiente</span>
                     </div>
                 </header>
@@ -110,7 +111,7 @@
                     </div>
                 </section>
 
-                <section class="page-card">
+                <section class="page-card fase-card fase-card--paso1">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Fase 1 · Datos extraídos del PDF</h2>
                         <p class="page-card-subtitle">Información capturada automáticamente del documento procesado.</p>
@@ -120,7 +121,7 @@
                     </div>
                 </section>
 
-                <section class="page-card">
+                <section class="page-card fase-card fase-card--paso2">
                     <header class="page-card-header">
                         <h2 class="page-card-title">Fase 2 · Datos del técnico móvil</h2>
                         <p class="page-card-subtitle">Información registrada por ti durante la gestión en campo.</p>

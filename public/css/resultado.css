@@ -68,6 +68,76 @@
     gap: var(--spacing-lg) var(--spacing-lg);
 }
 
+.badge-fase2 {
+    background-color: var(--naranja);
+    border-color: var(--naranja);
+    color: var(--blanco);
+}
+
+.fase-card {
+    overflow: hidden;
+}
+
+.fase-card--paso1 {
+    border-top: 4px solid var(--azul-principal);
+}
+
+.fase-card--paso1 .page-card-header {
+    background: linear-gradient(180deg, rgba(46, 59, 146, 0.06), rgba(46, 59, 146, 0.0));
+}
+
+.fase-card--paso1 .page-card-title {
+    color: var(--azul-principal);
+}
+
+.fase-card--paso1 .resumen-field dt {
+    color: var(--azul-borde);
+}
+
+.fase-card--paso1 .resumen-field dd {
+    color: var(--azul-principal);
+}
+
+.fase-card--paso2 {
+    border-top: 4px solid var(--naranja);
+}
+
+.fase-card--paso2 .page-card-header {
+    background: linear-gradient(180deg, rgba(245, 154, 35, 0.10), rgba(245, 154, 35, 0.0));
+}
+
+.fase-card--paso2 .page-card-title {
+    color: var(--naranja-oscuro);
+}
+
+.fase-card--paso2 .resumen-field dt {
+    color: var(--naranja-oscuro);
+}
+
+.fase-card--paso2 .resumen-field dd {
+    color: var(--azul-principal);
+}
+
+.fase-card .page-card-title::before {
+    content: '';
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: var(--spacing-sm);
+    border-radius: 50%;
+    vertical-align: middle;
+}
+
+.fase-card--paso1 .page-card-title::before {
+    background-color: var(--azul-principal);
+    box-shadow: 0 0 0 3px rgba(46, 59, 146, 0.18);
+}
+
+.fase-card--paso2 .page-card-title::before {
+    background-color: var(--naranja);
+    box-shadow: 0 0 0 3px rgba(245, 154, 35, 0.18);
+}
+
 .resumen-grid > div {
     min-width: 0;
 }
