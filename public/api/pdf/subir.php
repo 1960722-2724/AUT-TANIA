@@ -64,6 +64,12 @@ try {
         @file_put_contents($progFile, $contenido);
     };
 
+    // Crear el archivo de progreso de inmediato para que el polling del
+    // frontend no reciba 404 mientras se inicia el procesamiento.
+    if ($progFile !== null) {
+        $reportar(5, 'Recibiendo el PDF...');
+    }
+
     $proc = new PdfProcessor($destino);
     $proc->setReportadorProgreso($reportar);
     $resultado = $proc->procesar();

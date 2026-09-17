@@ -33,6 +33,63 @@ function leerBodyJson(): array
     return is_array($datos) ? $datos : [];
 }
 
+/**
+ * Inserta imágenes de un proceso en la tabla unificada pdf_imagenes.
+ *
+ * @param array<int,array<string,mixed>> $imagenes
+ */
+function insertarImagenes(PDO $pdo, string $idProceso, array $imagenes): void
+{
+    $stmt = $pdo->prepare(
+        'INSERT INTO pdf_imagenes (id_proceso, tipo, etiqueta, ruta, pagina, mime, ancho, alto, peso, orden)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+    );
+    $pasadas = array_values($imagenes);
+    foreach ($pasadas as $indice => $im) {
+        $stmt->execute([
+            $idProceso,
+            $im['tipo'] ?? 'pdf',
+            $im['etiqueta'] ?? null,
+            $im['ruta'] ?? ($im['url'] ?? null),
+            $im['pagina'] ?? null,
+            $im['mime'] ?? null,
+            $im['ancho'] ?? null,
+            $im['alto'] ?? null,
+            $im['peso'] ?? null,
+            (int) ($im['orden'] ?? $indice),
+        ]);
+    }
+}
+
+/**
+ * Normaliza un conjunto de filas de pdf_imagenes a los campos del frontend:
+ * imagen (1ª tipo 'pdf'), imagenes (completo) y evidencias (rutas tipo 'movil').
+ *
+ * @param array<int,array<string,mixed>> $imagenes
+ */
+function aplicarImagenes(array &$proceso, array $imagenes): void
+{
+    $proceso['imagenes'] = $imagenes;
+    $proceso['imagen'] = null;
+    foreach ($imagenes as $im) {
+        if (($im['tipo'] ?? '') === 'pdf') {
+            $proceso['imagen'] = ['url' => $im['ruta']] + $im;
+            break;
+        }
+    }
+    if ($proceso['imagen'] === null && !empty($imagenes)) {
+        $im = $imagenes[0];
+        $proceso['imagen'] = ['url' => $im['ruta']] + $im;
+    }
+    $evidencias = [];
+    foreach ($imagenes as $im) {
+        if (($im['tipo'] ?? '') === 'movil') {
+            $evidencias[] = $im['ruta'];
+        }
+    }
+    $proceso['evidencias'] = $evidencias;
+}
+
 function siguienteConsecutivo(PDO $pdo): string
 {
     $stmt = $pdo->query('SELECT consecutivo FROM pdf_procesos');
@@ -63,14 +120,13 @@ function obtenerProcesoCompleto(PDO $pdo, string $id): ?array
     $stmt->execute([$id]);
     $fase2 = $stmt->fetch() ?: null;
 
-    $stmt = $pdo->prepare('SELECT ruta FROM pdf_evidencias WHERE id_proceso = ? ORDER BY id_evidencia');
+    $stmt = $pdo->prepare('SELECT id_imagen, tipo, etiqueta, ruta, pagina, mime, ancho, alto, peso FROM pdf_imagenes WHERE id_proceso = ? ORDER BY orden, id_imagen');
     $stmt->execute([$id]);
-    $evidencias = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $imagenes = $stmt->fetchAll();
 
     $proceso['hallazgo'] = $hallazgo;
     $proceso['fase2'] = $fase2;
-    $proceso['evidencias'] = $evidencias;
-    $proceso['imagen'] = $proceso['imagen_url'] ? ['url' => $proceso['imagen_url']] : null;
+    aplicarImagenes($proceso, $imagenes);
     $proceso['registro'] = $proceso['registro_pagina'] !== null ? [
         'page' => (int) $proceso['registro_pagina'],
         'x' => $proceso['registro_x'] !== null ? (float) $proceso['registro_x'] : null,
@@ -126,10 +182,17 @@ function listarProcesos(PDO $pdo, string $whereSql = '', array $params = []): ar
         }
     }
 
+    $imagenesPorProceso = [];
+    $stmt = $pdo->prepare("SELECT id_imagen, id_proceso, tipo, etiqueta, ruta, pagina, mime, ancho, alto, peso FROM pdf_imagenes WHERE id_proceso IN ({$marcadores}) ORDER BY orden, id_imagen");
+    $stmt->execute($ids);
+    foreach ($stmt->fetchAll() as $im) {
+        $imagenesPorProceso[$im['id_proceso']][] = $im;
+    }
+
     foreach ($procesos as &$p) {
         $p['hallazgo'] = $hallazgos[$p['id_proceso']] ?? null;
         $p['fase2'] = $fases2[$p['id_proceso']] ?? null;
-        $p['imagen'] = $p['imagen_url'] ? ['url' => $p['imagen_url']] : null;
+        aplicarImagenes($p, $imagenesPorProceso[$p['id_proceso']] ?? []);
         $p['asignado_a'] = $p['asignado_a_id_usuario'] ? ($asignados[$p['asignado_a_id_usuario']] ?? null) : null;
     }
     unset($p);
@@ -179,8 +242,8 @@ try {
                 'INSERT INTO pdf_procesos
                     (id_proceso, consecutivo, nombre_archivo, archivo_original, escaneado, paginas,
                      id_usuario_creador, id_estado, asignado_a_id_usuario, confirmado,
-                     imagen_url, registro_pagina, registro_x, registro_y_min, registro_y_max, texto_extraido)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+                     registro_pagina, registro_x, registro_y_min, registro_y_max, texto_extraido)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
             );
             $registro = $body['registro'] ?? [];
             $stmt->execute([
@@ -194,13 +257,25 @@ try {
                 $body['id_estado'] ?? 1,
                 $body['asignado_a_id_usuario'] ?? null,
                 0,
-                $body['imagen']['url'] ?? null,
                 $registro['page'] ?? null,
                 $registro['x'] ?? null,
                 $registro['yMin'] ?? null,
                 $registro['yMax'] ?? null,
                 isset($body['texto']) ? json_encode($body['texto'], JSON_UNESCAPED_UNICODE) : null,
             ]);
+
+            $imagenes = $body['imagenes'] ?? [];
+            if (empty($imagenes) && !empty($body['imagen']['url'])) {
+                $imagenes[] = [
+                    'tipo' => 'pdf',
+                    'etiqueta' => 'Registro fotografico extraido del PDF',
+                    'ruta' => $body['imagen']['url'],
+                    'pagina' => $registro['page'] ?? null,
+                ];
+            }
+            if ($imagenes) {
+                insertarImagenes($pdo, $idProceso, $imagenes);
+            }
 
             if (!empty($body['hallazgo']) && is_array($body['hallazgo'])) {
                 $columnas = array_intersect(array_keys($body['hallazgo']), $GLOBALS['camposHallazgo']);
@@ -266,9 +341,18 @@ try {
                 }
             }
 
-            if (!empty($body['evidencia_ruta'])) {
-                $stmt = $pdo->prepare('INSERT INTO pdf_evidencias (id_proceso, tipo, ruta) VALUES (?, ?, ?)');
-                $stmt->execute([$id, $body['evidencia_tipo'] ?? 'foto', $body['evidencia_ruta']]);
+            if (!empty($body['imagenes_nuevas']) && is_array($body['imagenes_nuevas'])) {
+                insertarImagenes($pdo, $id, $body['imagenes_nuevas']);
+            } elseif (!empty($body['evidencia_ruta'])) {
+                // Compatibilidad con cargas anteriores a pdf_imagenes.
+                $tipoEvidencia = $body['evidencia_tipo'] ?? 'movil';
+                insertarImagenes($pdo, $id, [[
+                    'tipo' => $tipoEvidencia === 'movil' ? 'movil' : 'pdf',
+                    'etiqueta' => $tipoEvidencia === 'movil'
+                        ? 'Registro fotografico digital (paso 2)'
+                        : 'Registro fotografico extraido del PDF',
+                    'ruta' => $body['evidencia_ruta'],
+                ]]);
             }
 
             $proceso = obtenerProcesoCompleto($pdo, $id);

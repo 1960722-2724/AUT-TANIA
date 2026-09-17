@@ -1,6 +1,9 @@
 # Temporales del procesamiento PDF
 public/api/tmp/**
 
+# Imágenes cargadas por la aplicación
+public/uploads/**
+
 # Archivos temporales
 *.tmp
 *.temp
@@ -17,3 +20,5 @@ Thumbs.db
 
 # Variables de entorno / credenciales
 .env
+# Copia anidada del proyecto (con su propio .git)
+AUTN TANIA/

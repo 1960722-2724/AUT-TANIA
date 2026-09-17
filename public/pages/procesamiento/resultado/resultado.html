@@ -11,9 +11,9 @@
 
     <link rel="stylesheet" href="../../../css/variables.css?v=7">
     <link rel="stylesheet" href="../../../css/base.css?v=7">
-    <link rel="stylesheet" href="../../../css/components.css?v=7">
+    <link rel="stylesheet" href="../../../css/components.css?v=11">
     <link rel="stylesheet" href="../../../css/layout.css?v=7">
-    <link rel="stylesheet" href="../../../css/resultado.css?v=7">
+    <link rel="stylesheet" href="../../../css/resultado.css?v=8">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
@@ -89,26 +89,11 @@
                 </header>
 
                 <section class="page-card">
-                    <div class="card-body">
-                        <dl class="summary-grid">
-                            <div class="summary-block">
-                                <dt>Consecutivo</dt>
-                                <dd id="resumen-consecutivo">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Archivo</dt>
-                                <dd id="resumen-archivo">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Fecha del hallazgo</dt>
-                                <dd id="resumen-fecha">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Procesamiento</dt>
-                                <dd id="resumen-procesamiento">—</dd>
-                            </div>
-                        </dl>
-                    </div>
+                    <div class="card-body" id="datos-primarios"></div>
+                </section>
+
+                <section class="page-card">
+                    <div class="card-body" id="datos-procesamiento"></div>
                 </section>
 
                 <section class="page-card fase-card fase-card--paso1">
@@ -191,7 +176,7 @@
         </div>
     </div>
 
-    <script src="../../../js/app.js?v=9"></script>
-    <script src="../../../js/resultado.js?v=9"></script>
+    <script src="../../../js/app.js?v=14"></script>
+    <script src="../../../js/resultado.js?v=12"></script>
 </body>
 </html>

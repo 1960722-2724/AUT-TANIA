@@ -119,21 +119,7 @@
     }
 
     function renderResumen(proceso) {
-        var original = proceso.archivo_original || proceso.archivo || '—';
-        var paginas = proceso.paginas || 0;
-
-        getEl('sum-archivo').textContent = original;
-        getEl('sum-paginas').textContent = paginas + (paginas === 1 ? ' página' : ' páginas');
-        getEl('sum-procesamiento').textContent = proceso.escaneado ? 'OCR' : 'Texto';
-
-        var registro = proceso.registro;
-        getEl('sum-registro').textContent = registro && registro.page
-            ? 'Página ' + registro.page
-            : 'No detectada';
-
-        if (proceso.escaneado) {
-            getEl('badge-ocr').hidden = false;
-        }
+        App.renderDatosPrimarios(getEl('datos-primarios'), proceso);
     }
 
     function renderSecciones(proceso) {
@@ -500,6 +486,14 @@
         if (esAdmin && assignCard) {
             assignCard.hidden = false;
             inicializarAsignacion(proceso);
+        }
+
+        if (esAdmin && sessionStorage.getItem('autn_exigir_asignacion')) {
+            sessionStorage.removeItem('autn_exigir_asignacion');
+            mostrarAlert('warning', 'La orden no tiene técnico asignado. Asígnalo antes de continuar con la ficha (Paso 2) o el resultado.');
+            if (assignCard && assignCard.scrollIntoView) {
+                assignCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         if (esAdmin) {

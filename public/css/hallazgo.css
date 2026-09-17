@@ -36,28 +36,6 @@
     flex-shrink: 0;
 }
 
-.summary-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--spacing-lg);
-}
-
-.summary-block dt {
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--naranja-oscuro);
-}
-
-.summary-block dd {
-    margin-top: var(--spacing-xs);
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--azul-principal);
-    word-break: break-word;
-}
-
 .hallazgo-grid {
     gap: var(--spacing-lg) var(--spacing-lg);
 }
@@ -460,11 +438,6 @@
         padding-top: 0;
     }
 
-    .summary-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: var(--spacing-md);
-    }
-
     .hallazgo-actions {
         grid-template-columns: 1fr;
     }
@@ -479,3 +452,4 @@
         width: 100%;
     }
 }
+

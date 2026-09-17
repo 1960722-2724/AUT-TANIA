@@ -216,6 +216,7 @@
         });
 
         peticionXhr.addEventListener('load', function () {
+            detenerProceso();
             var respuesta = typeof this.responseText === 'string' ? this.responseText : String(this.response || '');
             var res;
             try {
@@ -239,12 +240,12 @@
         });
 
         peticionXhr.addEventListener('error', function () {
-            peticionXhr = null;
+            detenerProceso();
             mostrarError('No se pudo conectar con el servidor.');
         });
 
         peticionXhr.addEventListener('abort', function () {
-            peticionXhr = null;
+            detenerProceso();
         });
 
         peticionXhr.send(formData);

@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteRule ^favicon\.ico$ assets/icons/logo.svg [L]

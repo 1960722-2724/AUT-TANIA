@@ -104,30 +104,13 @@
         });
     }
 
-    function formatearFecha(iso) {
-        var d = new Date(iso);
-        if (isNaN(d.getTime())) {
-            return '—';
-        }
-        return d.toLocaleDateString('es-ES', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        }) + ' · ' + d.toLocaleTimeString('es-ES', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    }
-
     function renderResumen(proceso) {
         var hallazgo = proceso.hallazgo || {};
         var f2 = proceso.fase2 || {};
         var estado = proceso.confirmado ? 'Completada' : 'En gestión';
 
-        getEl('resumen-consecutivo').textContent = '#' + proceso.consecutivo;
-        getEl('resumen-archivo').textContent = proceso.nombre_archivo || '—';
-        getEl('resumen-fecha').textContent = formatearFecha(proceso.fecha);
-        getEl('resumen-procesamiento').textContent = proceso.escaneado ? 'OCR' : 'Texto';
+        App.renderDatosPrimarios(getEl('datos-primarios'), proceso);
+        App.renderChipsProcesamiento(getEl('datos-procesamiento'), proceso);
 
         var badgeEstado = getEl('resumen-estado-badge');
         badgeEstado.textContent = estado;
@@ -177,6 +160,11 @@
 
             var sesion = App.obtenerSesion();
             var esAdmin = sesion && sesion.usuario && sesion.usuario.rol === 'ADMIN';
+
+            if (esAdmin && !App.exigirAsignacion(proceso, id)) {
+                body.hidden = true;
+                return;
+            }
 
             modalTitulo.textContent = esAdmin ? 'Orden completada' : 'Hallazgo guardado';
             modalTexto.textContent = esAdmin

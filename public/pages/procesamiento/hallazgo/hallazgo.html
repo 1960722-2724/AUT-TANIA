@@ -9,11 +9,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../../../css/variables.css?v=6">
+    <link rel="stylesheet" href="../../../css/variables.css?v=8">
     <link rel="stylesheet" href="../../../css/base.css?v=6">
-    <link rel="stylesheet" href="../../../css/components.css?v=6">
+    <link rel="stylesheet" href="../../../css/components.css?v=11">
     <link rel="stylesheet" href="../../../css/layout.css?v=6">
-    <link rel="stylesheet" href="../../../css/hallazgo.css?v=6">
+    <link rel="stylesheet" href="../../../css/hallazgo.css?v=9">
 </head>
 <body class="app-body">
     <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
@@ -79,33 +79,10 @@
                         <h2 class="hallazgo-title">Hallazgo detectado</h2>
                         <p class="hallazgo-desc">Información extraída automáticamente del documento procesado.</p>
                     </div>
-                    <div class="hero-badges">
-                        <span class="badge badge-blue">Procesado</span>
-                        <span class="badge badge-orange" id="badge-ocr" hidden>OCR</span>
-                    </div>
                 </header>
 
                 <section class="page-card">
-                    <div class="card-body">
-                        <dl class="summary-grid">
-                            <div class="summary-block">
-                                <dt>Archivo</dt>
-                                <dd id="sum-archivo">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Páginas</dt>
-                                <dd id="sum-paginas">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Procesamiento</dt>
-                                <dd id="sum-procesamiento">—</dd>
-                            </div>
-                            <div class="summary-block">
-                                <dt>Registro</dt>
-                                <dd id="sum-registro">—</dd>
-                            </div>
-                        </dl>
-                    </div>
+                    <div class="card-body" id="datos-primarios"></div>
                 </section>
 
                 <section class="page-card">
@@ -248,7 +225,7 @@
         </div>
     </div>
 
-    <script src="../../../js/app.js?v=9"></script>
-    <script src="../../../js/hallazgo.js?v=9"></script>
+    <script src="../../../js/app.js?v=14"></script>
+    <script src="../../../js/hallazgo.js?v=16"></script>
 </body>
 </html>

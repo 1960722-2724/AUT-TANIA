@@ -26,6 +26,9 @@
             if (proceso && proceso.id) {
                 procesoId = proceso.id;
             }
+            if (!App.exigirAsignacion(proceso, id)) {
+                return null;
+            }
             return proceso;
         });
     }
