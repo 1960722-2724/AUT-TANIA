@@ -37,23 +37,49 @@
 }
 
 .hallazgo-grid {
-    gap: var(--spacing-lg) var(--spacing-lg);
+    border: 1px solid rgba(46, 59, 146, 0.12);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    gap: 0;
 }
 
-.hallazgo-grid > div {
+.hallazgo-field {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     min-width: 0;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid rgba(46, 59, 146, 0.08);
+    border-right: 1px solid rgba(46, 59, 146, 0.08);
+    background: linear-gradient(180deg, rgba(46, 59, 146, 0.015) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.hallazgo-field.field-full,
+.hallazgo-field:nth-child(even) {
+    border-right: 0;
+}
+
+.hallazgo-field:last-child {
+    border-bottom: 0;
+}
+
+.hallazgo-field.hallazgo-destacado {
+    background: linear-gradient(180deg, rgba(245, 154, 35, 0.06) 0%, rgba(245, 154, 35, 0.02) 100%);
 }
 
 .hallazgo-field dt {
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--naranja-oscuro);
+    color: var(--gris-texto);
 }
 
 .hallazgo-field dd {
-    margin-top: 4px;
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.45;
@@ -62,11 +88,10 @@
 }
 
 .hallazgo-field.field-full dd {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
 }
 
-.hallazgo-field.hallazgo-destacado dd {
-    font-size: 1.15rem;
+.hallazgo-destacado dd {
     color: var(--azul-principal);
 }
 
@@ -85,6 +110,7 @@
     font-size: 1rem;
     line-height: 1.7;
     color: var(--gris-texto);
+    text-align: center;
     white-space: pre-wrap;
     word-break: break-word;
 }
@@ -429,6 +455,11 @@
 }
 
 @media (max-width: 600px) {
+    .hallazgo-field {
+        border-right: 0;
+        padding: 16px;
+    }
+
     .hallazgo-hero {
         flex-direction: column;
         gap: var(--spacing-md);
