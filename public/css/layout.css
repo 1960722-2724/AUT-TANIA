@@ -14,10 +14,6 @@
     transition: background-image 0.4s ease;
 }
 
-.auth-layout.auth-layout--admin {
-    background-image: url('../assets/images/admin.jpg');
-}
-
 .auth-layout::before {
     content: '';
     position: absolute;

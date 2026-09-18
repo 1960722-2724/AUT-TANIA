@@ -416,7 +416,16 @@
         var fecha = (hallazgo.fechaHora && hallazgo.fechaHora.trim())
             ? hallazgo.fechaHora.trim()
             : formatearMetaFecha(proceso.fecha);
+        // La ficha del hallazgo surge de los datos extraídos del PDF: en esa
+        // etapa aún no existe técnico asignado, por lo que la celda muestra el
+        // campo "NOMBRE QUIEN REPORTA" del documento. Una vez asignado el
+        // técnico (Paso 2/Resultado), gana el nombre del usuario móvil.
         var tecnico = (proceso.asignado_a && proceso.asignado_a.nombre) || null;
+        var quienReporta = (hallazgo.quienReporta && hallazgo.quienReporta.trim())
+            ? hallazgo.quienReporta.trim()
+            : null;
+        var reporta = tecnico || quienReporta;
+        var etiquetaReporta = tecnico ? 'Técnico asignado' : 'Quien reporta';
         var prioridad = (hallazgo.prioridad && hallazgo.prioridad.trim())
             ? hallazgo.prioridad.trim()
             : null;
@@ -424,7 +433,7 @@
         var estadisticas = [
             { etiqueta: 'Consecutivo', valor: consecutivo, icono: META_ICONOS.hash },
             { etiqueta: 'Fecha del hallazgo', valor: fecha, icono: META_ICONOS.reloj },
-            { etiqueta: 'Técnico asignado', valor: tecnico, icono: META_ICONOS.usuario },
+            { etiqueta: etiquetaReporta, valor: reporta, icono: META_ICONOS.usuario },
             { etiqueta: 'Prioridad', valor: prioridad, icono: META_ICONOS.alerta }
         ];
 

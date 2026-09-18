@@ -216,8 +216,13 @@
         });
 
         peticionXhr.addEventListener('load', function () {
-            detenerProceso();
+            // Guardar respuesta y estado ANTES de detenerProceso(): detenerProceso()
+            // llama a peticionXhr.abort() sobre este mismo XHR y en algunos
+            // navegadores eso vacía responseText/status antes de que se lean.
+            var status = this.status;
             var respuesta = typeof this.responseText === 'string' ? this.responseText : String(this.response || '');
+            detenerProceso();
+
             var res;
             try {
                 res = JSON.parse(respuesta);
@@ -226,8 +231,12 @@
             }
             peticionXhr = null;
 
-            if (this.status >= 400 || !res || !res.ok) {
-                mostrarError((res && res.error) || 'Error al procesar el PDF.');
+            if (status >= 400 || !res || !res.ok) {
+                var motivo = (res && res.error);
+                if (!motivo && !res) {
+                    motivo = 'Respuesta no válida del servidor: ' + (respuesta ? respuesta.slice(0, 120) : '(vacía)');
+                }
+                mostrarError(motivo || 'Error al procesar el PDF.');
                 return;
             }
 

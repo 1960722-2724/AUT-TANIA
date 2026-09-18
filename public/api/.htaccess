@@ -1,0 +1,4 @@
+# Los endpoints de la API devuelven JSON. Nunca mostrar errores PHP en el
+# output para no corromper la respuesta (complementado por ob_start/ob_end_clean
+# en cada endpoint cuando el buffer de salida está disponible).
+php_flag display_errors off

@@ -6,11 +6,6 @@
     var loginBtn = document.getElementById('login-btn');
     var cedulaInput = document.getElementById('cedula');
     var passwordInput = document.getElementById('password');
-    var rolNav = document.getElementById('rol-nav');
-    var rolItems = rolNav ? rolNav.querySelectorAll('.rol-nav-item') : [];
-    var rolIndicator = document.getElementById('rol-nav-indicator');
-    var rolActual = 'USUARIO';
-    var authLayout = document.querySelector('.auth-layout');
     var cedulaError = document.getElementById('cedula-error');
     var passwordError = document.getElementById('password-error');
 
@@ -114,41 +109,6 @@
     }
 
     form.addEventListener('submit', manejarEnvio);
-
-    function moverIndicador(activo) {
-        if (rolIndicator && activo) {
-            rolIndicator.style.left = activo.offsetLeft + 'px';
-            rolIndicator.style.width = activo.offsetWidth + 'px';
-        }
-    }
-
-    if (rolNav) {
-        rolItems.forEach(function (item) {
-            item.addEventListener('click', function () {
-                rolItems.forEach(function (otro) {
-                    otro.classList.remove('is-active');
-                    otro.setAttribute('aria-selected', 'false');
-                });
-                item.classList.add('is-active');
-                item.setAttribute('aria-selected', 'true');
-                rolActual = item.getAttribute('data-rol');
-                if (authLayout) {
-                    authLayout.classList.toggle('auth-layout--admin', rolActual === 'ADMIN');
-                }
-                rolNav.classList.toggle('rol-nav--blanco', rolActual === 'USUARIO');
-                moverIndicador(item);
-            });
-        });
-
-        var activoInicial = rolNav.querySelector('.rol-nav-item.is-active') || rolItems[0];
-        window.addEventListener('load', function () {
-            moverIndicador(activoInicial);
-        });
-        window.addEventListener('resize', function () {
-            var activo = rolNav.querySelector('.rol-nav-item.is-active');
-            moverIndicador(activo);
-        });
-    }
 
     cedulaInput.addEventListener('input', function () {
         if (cedulaInput.value) {
